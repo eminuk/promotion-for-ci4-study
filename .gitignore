@@ -14,4 +14,5 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 .env
 writable/logs/*
 writable/session/*
+writable/debugbar/*
 !writable/*/index.html
