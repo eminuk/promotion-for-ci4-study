@@ -12,7 +12,8 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 
 #codeigniter 4
 .env
+writable/cache/*
+writable/debugbar/*
 writable/logs/*
 writable/session/*
-writable/debugbar/*
 !writable/*/index.html
