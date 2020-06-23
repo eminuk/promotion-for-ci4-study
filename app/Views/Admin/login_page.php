@@ -24,7 +24,7 @@
         <?= csrf_field() ?>
         <input type="text" name="email" placeholder="이메일주소" value="<?=esc('admin@autocarz.co.kr')?>" />
         <br />
-        <input type="password" name="password" placeholder="패스워드" value="autocarz!@34" />
+        <input type="password" name="password" placeholder="패스워드" value="autocarz1234" />
         <br />
         <label><input type="checkbox" name="keep_login" value='Y' checked />로그인 상태 유지</label>
         <br />

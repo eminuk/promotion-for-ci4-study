@@ -33,5 +33,17 @@ class ManagerModel extends Model
     // protected $afterUpdate = [];
     // protected $afterFind = [];
     // protected $afterDelete = [];
+
+
+    /**
+     * Get Manager entity from email
+     *
+     * @param string $email
+     * @return [\App\Entities\Admin\Manager]
+     */
+    public function getFromEmail(string $email): \App\Entities\Admin\Manager
+    {
+        return $this->where([ 'email' => $email ])->first();
+    }
 }
 
