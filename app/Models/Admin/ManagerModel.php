@@ -41,9 +41,15 @@ class ManagerModel extends Model
      * @param string $email
      * @return [\App\Entities\Admin\Manager]
      */
-    public function getFromEmail(string $email): \App\Entities\Admin\Manager
+    public function getFromEmail(string $email): ?\App\Entities\Admin\Manager
     {
-        return $this->where([ 'email' => $email ])->first();
+        $res = $this->where([ 'email' => $email ])->first();
+
+        // if (empty($res)) {
+        //     $res = new \App\Entities\Admin\Manager();
+        // }
+
+        return $res;
     }
 }
 

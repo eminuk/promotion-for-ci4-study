@@ -1,4 +1,4 @@
-<?php namespace App\Controllers\API\Admin;
+<?php namespace App\Controllers\API;
 
 /**
  * Class BaseController
@@ -16,7 +16,7 @@
 use CodeIgniter\Controller;
 
 /**
- * Base controller class for controllers under 'App\Controllers\API\Admin'
+ * Base controller class for controllers under 'App\Controllers\API'
  */
 class BaseController extends Controller
 {
@@ -91,7 +91,12 @@ class BaseController extends Controller
     protected function validateParameter(array $validate_rule = [])
     {
         if (!$this->validate($validate_rule)) {
-            $this->fail($this->validator->getErrors(), 422, 'Parameter validate id fail', '');
+            $this->fail(
+                $this->validator->getErrors(),
+                422,
+                'Parameter validate is fail',
+                'Parameter validate is fail'
+            );
             $this->response->send();
             exit();
         }

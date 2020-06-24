@@ -12,6 +12,11 @@ class Home extends BaseController
      */
     public function index()
     {
-        echo view('admin/login_page');
+        // Log out
+        // $this->session->destroy();
+        // $this->session->stop();
+        $this->session->remove('admin');
+
+        return view('admin/login_page');
     }
 }

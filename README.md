@@ -37,7 +37,7 @@ GRANT ALL PRIVILEGES ON autocarz_kcar.* TO 'autocarz'@'%' IDENTIFIED BY 'autocar
         INDEX (state)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='관리자';
 
-    -- Insert default manager account (admin@autocarz.co.kr / autocarz!@34)
+    -- Insert default manager account (admin@autocarz.co.kr / autocarz1234)
     INSERT INTO manager (email, password, name, state) VALUES 
     ('admin@autocarz.co.kr', '87dd4e4ca8493300480ef1e419760ba4f0c7261c3baa623c133cafaac4562b6f', '관리자', '1');
     ```
