@@ -6,7 +6,7 @@
 class Home extends BaseController
 {
     /**
-     * Admin default page - Login
+     * /Admin default page - Login
      *
      * @return void
      */

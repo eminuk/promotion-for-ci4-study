@@ -62,13 +62,14 @@ class Manager extends \App\Controllers\API\BaseController
         // Check manager's password and status
         $check_result = $manager->checkPassword($params['password']);
 
-        // Set response data
+        // Set response data & create login info
         if ($check_result) {
+            // Set response data
             $rtn = [
                 'result' => true,
                 'message' => '',
                 'data' => [
-                    'redirect_url' => '/admin/somepage'
+                    'redirect_url' => '/admin/kcar/kw_list'
                 ]
             ];
 
@@ -83,30 +84,4 @@ class Manager extends \App\Controllers\API\BaseController
         return $this->respond($rtn, 200, '');
     }
 
-    public function somesome()
-    {
-        // throw new \CodeIgniter\Exceptions\PageNotFoundException('wwww');
-
-        $ee = null;
-        // $res = $manager_model->find(1);
-        // $res = $manager_model->findColumn('email');
-        // $res = $manager_model->where('id', 2)->findColumn('email');
-        // $res = $manager_model->findAll();
-        // $res = $manager_model->where('id', 1)->findAll();
-        // $res = $manager_model->findAll(1, 0);
-        // $res = $manager_model->where('id', 1)->first();
-        // var_dump($res);
-
-        // $manager_model->where('id', 2)->chunk(10, function ($data)
-        // {
-        //     var_dump($data);
-        // });
-
-        $manager = $this->_manager_model->getFromEmail('admin@autocarz.co.kr');
-        // var_dump($manager);
-        $res = $manager->checkPassword('autocarz1234');
-        var_dump($res);
-
-        // echo view('admin/login_page');
-    }
 }
