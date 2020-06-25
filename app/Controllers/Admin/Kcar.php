@@ -23,11 +23,11 @@ class Kcar extends BaseController
      */
     public function kw_list()
     {
-        $view_var = [
-            'layout' => [
-                'manager_name' => $this->session->get('admin')['manager_name']
-            ]
+
+        $this->view_data['lalal'] = [
+            'rarar'
         ];
-        return view('admin/kcar/kw_list', $view_var);
+
+        return view('admin/kcar/kw_list', $this->view_data);
     }
 }

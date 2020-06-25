@@ -43,4 +43,143 @@ GRANT ALL PRIVILEGES ON autocarz_kcar.* TO 'autocarz'@'%' IDENTIFIED BY 'autocar
     ```
 
 
+1. 프로모션 관리 테이블
+    1. 기초 데이터 테이블
+        ``` sql
+        CREATE TABLE IF NOT EXISTS kcar_kw
+        (
+            id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
+            kw_code VARCHAR(10) NOT NULL COMMENT 'KW 상품코드',
+            kw_price INT NOT NULL COMMENT 'KW 상품가격',
+            kw_branch VARCHAR(25) NOT NULL COMMENT 'KW 발급지점',
+            car_number VARCHAR(10) NOT NULL COMMENT '차량번호', 
+            car_manufacturer VARCHAR(25) NOT NULL COMMENT '차량 제조사',
+            car_model VARCHAR(25) NOT NULL COMMENT '차량 모델',
+            cus_name VARCHAR(25) NOT NULL COMMENT '고객 이름',
+            cus_mobile VARCHAR(13) NOT NULL COMMENT '고객 연락처',
+            cus_post VARCHAR(6) NOT NULL COMMENT '고객 우편번호',
+            cus_addr1 VARCHAR(100) NOT NULL COMMENT '고객 주소',
+            cus_addr2 VARCHAR(100) NOT NULL COMMENT '고객 상세주소',
+            bnft_price INT NOT NULL COMMENT '상품권 금액',
+            
+            status TINYINT NOT NULL DEFAULT '1' COMMENT '상태 (0:비활성 / 1:정상)',
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
 
+            PRIMARY KEY (id),
+            INDEX (kw_code),
+            INDEX (car_manufacturer),
+            INDEX (bnft_price),
+            INDEX (cus_name, cus_mobile)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='KCar KW프로모션 기초 데이터';
+        ```
+    1. 혜택 코드 데이터
+        ``` sql
+        CREATE TABLE IF NOT EXISTS kcar_kw_benefit
+        (
+            id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
+            bnft_code VARCHAR(10) NOT NULL COMMENT '혜택 코드',
+            bnft_price INT NOT NULL DEFAULT 0 COMMENT '혜택 금액  kcar_kw.bnft_price',
+
+            status TINYINT(4) NOT NULL DEFAULT '1' COMMENT '상태 (0:비활성 / 1:정상)',
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
+
+            PRIMARY KEY (id),
+            UNIQUE KEY (bnft_code),
+            UNIQUE KEY (bnft_price)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='KCar KW프로모션 혜택 데이터';
+
+        -- Insert default codes
+        INSERT INTO kcar_kw_benefit (bnft_code, bnft_price) VALUES 
+        ('k-20', 20000), ('k-25', 25000), ('k-30', 30000), ('k-35', 35000), ('k-45', 45000), ('k-60', 60000), 
+        ('i-50', 50000), ('i-75', 75000), ('i-70', 70000), ('i-95', 95000)
+        ;
+        ```
+    1. 고객 데이터
+        ``` sql
+        CREATE TABLE IF NOT EXISTS kcar_kw_customer
+        (
+            id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
+            kw_id INT UNSIGNED NOT NULL COMMENT 'KW프로모션 ID  kcar_kw.id',
+            bnft_code VARCHAR(10) NOT NULL COMMENT '혜택 코드  kcar_kw_benefit.bnft_code',
+            product_id INT UNSIGNED NULL COMMENT 'KW프로모션 ID  kcar_kw_product.id',
+            select_at DATETIME NULL COMMENT '선택일시',
+            cus_post VARCHAR(6) NOT NULL DEFAULT '' COMMENT '고객 우편번호',
+            cus_addr1 VARCHAR(100) NOT NULL DEFAULT '' COMMENT '고객 주소',
+            cus_addr2 VARCHAR(100) NOT NULL DEFAULT '' COMMENT '고객 상세주소',
+            send_sms TINYINT NOT NULL DEFAULT 0 COMMENT 'SMS 발송여부 (0:미발송 / 1:발송완료 / 2:발송실패 / 3:재발송요청)',
+            status TINYINT(4) NOT NULL DEFAULT '1' COMMENT '상태 (0:비활성 / 1:정상)',
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
+
+            PRIMARY KEY (id),
+            UNIQUE KEY (kw_id),
+            INDEX (bnft_code),
+            INDEX (product_id), 
+            INDEX (send_sms)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='KCar KW프로모션 고객 데이터';
+        ```
+    1. 상품 데이터
+        ``` sql
+        CREATE TABLE IF NOT EXISTS kcar_kw_product
+        (
+            id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
+            kw_code VARCHAR(10) NOT NULL COMMENT 'KW 상품코드 kcar_kw.kw_code',
+            bnft_price INT NOT NULL DEFAULT 0 COMMENT '혜택 금액  kcar_kw.bnft_price',
+            type TINYINT NOT NULL DEFAULT 0 COMMENT '상품 타입 (1:출장세차 / 2:세차용품 / 3:자동차용품)',
+            items TEXT NULL COMMENT '상품 구성품',
+            img VARCHAR(255) NOT NULL DEFAULT '' COMMENT '상품 이미지',
+            status TINYINT(4) NOT NULL DEFAULT '1' COMMENT '상태 (0:비활성 / 1:정상)',
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
+
+            PRIMARY KEY (id),
+            UNIQUE KEY (kw_code, bnft_price, type),
+            INDEX (type)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='KCar KW프로모션 상품 데이터';
+
+        -- Insert default products
+        INSERT INTO kcar_kw_product (kw_code, bnft_price, type, items) VALUES
+        ('KW6', '20000', '1', '실외'),
+        ('KW6', '20000', '2', '카샴푸,광택용극세타월'),
+        ('KW6', '20000', '3', ' 랏츠 트윈스마트 충전기\r\n 아이팝 블루라인 마그네틱 케이블 5핀.8핀C타입'),
+        ('KW12', '30000', '1', '실외+실내'),
+        ('KW12', '30000', '2', '카샴푸,유리광택세정제, 광택용극세타월'),
+        ('KW12', '30000', '3', ' 랏츠 트윈스마트 충전기\r\n 아이팝 블루라인 마그네틱 케이블 5핀.8핀C타입\r\n 시그니쳐 스윙 주차 알림판'),
+        ('KW6', '25000', '1', '실외'),
+        ('KW6', '25000', '2', '카샴푸, 유리광택세정제'),
+        ('KW6', '25000', '3', '랏츠 트윈스마트 충전기\r\n 아이팝 블루라인 마그네틱 케이블 5핀.8핀C타입\r\n 햇빛 가리게 (3p)'),
+        ('KW12', '35000', '1', '실외+실내'),
+        ('KW12', '35000', '2', '카샴푸, 유리광택세정제, 휠크리너'),
+        ('KW12', '35000', '3', '랏츠 트윈스마트 충전기\r\n 아이팝 블루라인 마그네틱 케이블 5핀.8핀C타입\r\n 햇빛 가리게 (3p)\r\n 풀메탈 QC3.0 충전기'),
+        ('KW6', '35000', '1', '실외'),
+        ('KW6', '35000', '2', '카샴푸, 유리광택세정제, 휠크리너'),
+        ('KW6', '35000', '3', '랏츠 트윈스마트 충전기\r\n 아이팝 블루라인 마그네틱 케이블 5핀.8핀C타입\r\n 햇빛 가리게 (3p)\r\n 풀메탈 QC3.0 충전기'),
+        ('KW12', '45000', '1', '실외+실내'),
+        ('KW12', '45000', '2', '카샴푸, 유리광택세정제, 휠크리너, 광택용극세타월, 소낙스 멀티스펀지'),
+        ('KW12', '45000', '3', '랏츠 트윈스마트 충전기\r\n 아이팝 블루라인 마그네틱 케이블 5핀.8핀C타입\r\n 풀메탈 QC3.0 충전기\r\n 시그니쳐 스윙 주차 알림판'),
+        ('KW6', '45000', '1', '실외'),
+        ('KW6', '45000', '2', '카샴푸, 유리광택세정제, 휠크리너, 광택용극세타월, 소낙스 멀티스펀지'),
+        ('KW6', '45000', '3', '랏츠 트윈스마트 충전기\r\n 아이팝 블루라인 마그네틱 케이블 5핀.8핀C타입\r\n 풀메탈 QC3.0 충전기\r\n 시그니쳐 스윙 주차 알림판'),
+        ('KW12', '60000', '1', '실외+실내+스팀살균'),
+        ('KW12', '60000', '2', '카샴푸, 유리광택세정제, 휠크리너, 고속코팅왁스, 스티커타르제거'),
+        ('KW6', '50000', '1', '실외+실내+스팀살균'),
+        ('KW6', '50000', '2', '카샴푸, 유리광택세정제, 휠크리너, 고속코팅왁스, 광택용극세타월'),
+        ('KW6', '50000', '3', '랏츠 트윈스마트 충전기\r\n 아이팝 블루라인 마그네틱 케이블 5핀.8핀C타입\r\n햇빛 가리게 (3p)\r\n 풀메탈 QC3.0 충전기\r\n 시그니쳐 스윙 주차 알림판 '),
+        ('KW12', '75000', '1', '실외+실내+스팀살균+엔진룸'),
+        ('KW12', '75000', '2', '카샴푸, 유리광택세정제, 휠크리너, 고속코팅왁스, 스티커타르제거, 컴파운드, 광택용극세타월, 유리극세타월, 드라잉타월, 소낙스왁싱스펀지'),
+        ('KW6', '70000', '1', '실외+실내+스팀살균'),
+        ('KW6', '70000', '2', '카샴푸, 유리광택세정제, 휠크리너, 고속코팅왁스, 스티커타르제거, 컴파운드'),
+        ('KW12', '95000', '1', '실외+실내+스팀살균+엔진룸'),
+        ('KW12', '95000', '2', '카샴푸, 유리광택세정제, 휠크리너, 고속코팅왁스, 스티커타르제거, 컴파운드,타이어광택제, 유리극세타월, 드라잉타월, 소낙스왁싱스펀지,트렁크정리함');
+        ;
+        ```
+
+
+
+## .env 파일 생성
+
+cp env .env
+DATABASE 설정
+CI_ENVIRONMENT 설정

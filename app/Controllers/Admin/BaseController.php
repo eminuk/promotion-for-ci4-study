@@ -32,16 +32,25 @@ class BaseController extends Controller
     /**
      * session variable
      *
-     * @var [session]
+     * @var session
      */
-    public $session;
+    protected $session;
 
     /**
      * CommonLib
      *
-     * @var [CommonLib]
+     * @var CommonLib
      */
-    public $commonLib;
+    protected $commonLib;
+
+    /**
+     * Predefined variable for layout and view
+     * (reserved word: admin_layout)
+     *
+     * @var array
+     */
+    protected $view_data = [];
+
 
     /**
      * Constructor.
@@ -59,5 +68,28 @@ class BaseController extends Controller
 
         $this->session = \Config\Services::session();
         $this->commonLib = new \App\Libraries\CommonLib();
+
+
+        // Check login session and redirect login page
+        $this->isLogin();
+    }
+
+    /**
+     * Check login session and redirect login page
+     *
+     * @return void
+     */
+    protected function isLogin(): void
+    {
+        if (!$this->session->has('admin_login')) {
+            redirect()->to('/admin')->send();
+            exit();
+        } else {
+            $this->view_data = [
+                'admin_layout' => [
+                    'manager_name' => $this->session->get('admin_login')['manager_name']
+                ]
+            ];
+        }
     }
 }

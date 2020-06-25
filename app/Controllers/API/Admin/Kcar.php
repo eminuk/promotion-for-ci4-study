@@ -2,43 +2,26 @@
 
 
 /**
- * 사용자(관리자) 관련 API 컨트롤러
+ * Kcar 관련 API 컨트롤러
  */
-class Manager extends \App\Controllers\API\BaseController
+class Kcar extends \App\Controllers\API\BaseController
 {
-    /**
-     * Manager model
-     *
-     * @var [type]
-     */
-    private $_manager_model;
-
     /**
      * Construct
      */
-    public function __construct()
-    {
-        // Load models
-        $this->_manager_model = new \App\Models\Admin\ManagerModel();
-    }
+    public function __construct() {}
 
-    /**
-     * Login API
-     *
-     * @return void
-     */
-    public function login()
+    public function kw_list()
     {
-        // Remove login info
-        $this->session->remove('admin_login');
+        // Check login info
 
         // Validate allowed method
-        $this->validateAllowedMethod([ 'POST' ]);
+        $this->validateAllowedMethod([ 'GET' ]);
 
         // Validate parameter
         $this->validateParameter([
-            'email' => 'required|valid_email',
-            'password' => 'required'
+            'email' => '',
+            'password' => ''
         ]);
 
         // Read parameters
@@ -72,16 +55,8 @@ class Manager extends \App\Controllers\API\BaseController
                     'redirect_url' => '/admin/kcar/kw_list'
                 ]
             ];
-
-            // Create login info
-            $this->session->set('admin_login', [
-                'manager_id' => $manager->id,
-                'manager_email' => $manager->email,
-                'manager_name' => $manager->name
-            ]);
         }
 
         return $this->respond($rtn, 200, '');
     }
-
 }

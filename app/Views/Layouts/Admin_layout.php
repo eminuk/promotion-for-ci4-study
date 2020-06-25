@@ -20,7 +20,7 @@
 <!-- HEADER: MENU + HEROE SECTION -->
 <header>
     <h1>This is header</h1>
-    <span><?= $layout['manager_name'] ?></span>
+    <span><?= $admin_layout['manager_name'] ?></span>
     <a href="/admin">Log out</a>
     <hr />
 </header>

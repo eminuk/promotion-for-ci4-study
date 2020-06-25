@@ -34,16 +34,16 @@ class BaseController extends Controller
     /**
      * session variable
      *
-     * @var [session]
+     * @var session
      */
-    public $session;
+    protected $session;
 
     /**
      * CommonLib instance
      *
-     * @var [CommonLib]
+     * @var CommonLib
      */
-    public $commonLib;
+    protected $commonLib;
 
     /**
      * Constructor.
@@ -73,7 +73,7 @@ class BaseController extends Controller
      * @param array $allowed_method
      * @return void
      */
-    protected function validateAllowedMethod(array $allowed_method = [])
+    protected function validateAllowedMethod(array $allowed_method = []): void
     {
         if (!in_array($this->request->getMethod(TRUE), $allowed_method)) {
             $this->fail($this->request->getMethod(TRUE).' is not allowed', 405, 'Method Not Allowed', '');
@@ -88,7 +88,7 @@ class BaseController extends Controller
      * @param array $validate_rule
      * @return void
      */
-    protected function validateParameter(array $validate_rule = [])
+    protected function validateParameter(array $validate_rule = []): void
     {
         if (!$this->validate($validate_rule)) {
             $this->fail(
