@@ -49,7 +49,18 @@ class BaseController extends Controller
      *
      * @var array
      */
-    protected $view_data = [];
+    protected $view_data = [
+        'admin_layout' => []
+    ];
+
+    /**
+     * Base controller config variable
+     *
+     * @var array
+     */
+    protected $base_controller_cfg = [
+        'auto_login_check' => true
+    ];
 
 
     /**
@@ -71,16 +82,23 @@ class BaseController extends Controller
 
 
         // Check login session and redirect login page
-        $this->isLogin();
+        $this->isLogin(true);
     }
 
     /**
      * Check login session and redirect login page
      *
+     * @param boolean $is_auto
      * @return void
      */
-    protected function isLogin(): void
+    protected function isLogin(bool $is_auto = false): void
     {
+        // Check config
+        if ($is_auto && !$this->base_controller_cfg['auto_login_check']) {
+            return;
+        }
+
+        // Check session and make view data for admin layout.
         if (!$this->session->has('admin_login')) {
             redirect()->to('/admin')->send();
             exit();
@@ -90,6 +108,7 @@ class BaseController extends Controller
                     'manager_name' => $this->session->get('admin_login')['manager_name']
                 ]
             ];
+            return;
         }
     }
 }

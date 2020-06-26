@@ -18,6 +18,9 @@ class Manager extends \App\Controllers\API\BaseController
      */
     public function __construct()
     {
+        // Set base controller config
+        $this->base_controller_cfg['auto_login_check'] = false;
+
         // Load models
         $this->_manager_model = new \App\Models\Admin\ManagerModel();
     }
@@ -43,8 +46,8 @@ class Manager extends \App\Controllers\API\BaseController
 
         // Read parameters
         $params = [
-            'email' => $this->request->getPostGet('email'),
-            'password' => $this->request->getPostGet('password'),
+            'email' => $this->commonLib->readPostGet('email'),
+            'password' => $this->commonLib->readPostGet('password'),
         ];
 
         // Set default response data

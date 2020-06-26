@@ -46,6 +46,15 @@ class BaseController extends Controller
     protected $commonLib;
 
     /**
+     * Base controller config variable
+     *
+     * @var array
+     */
+    protected $base_controller_cfg = [
+        'auto_login_check' => true
+    ];
+
+    /**
      * Constructor.
      */
     public function initController(\CodeIgniter\HTTP\RequestInterface $request, \CodeIgniter\HTTP\ResponseInterface $response, \Psr\Log\LoggerInterface $logger)
@@ -64,6 +73,9 @@ class BaseController extends Controller
 
         // Set ResponseTrait
         $this->setResponseFormat('json');
+
+        // Check login session and redirect login page
+        $this->validateLogin(true);
     }
 
 
@@ -97,6 +109,27 @@ class BaseController extends Controller
                 'Parameter validate is fail',
                 'Parameter validate is fail'
             );
+            $this->response->send();
+            exit();
+        }
+    }
+
+    /**
+     * Check login session and response.
+     *
+     * @param boolean $is_auto
+     * @return void
+     */
+    protected function validateLogin(bool $is_auto = false): void
+    {
+        // Check config
+        if ($is_auto && !$this->base_controller_cfg['auto_login_check']) {
+            return;
+        }
+
+        // Check session
+        if (!$this->session->has('admin_login')) {
+            $this->failUnauthorized('Administer login is required.', 'Unauthorized', '');
             $this->response->send();
             exit();
         }

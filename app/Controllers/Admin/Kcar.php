@@ -6,6 +6,11 @@
 class Kcar extends BaseController
 {
     /**
+     * Construct
+     */
+    public function __construct() {}
+
+    /**
      * /Admin/Kcar default page
      *
      * @return void

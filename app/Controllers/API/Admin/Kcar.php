@@ -11,10 +11,9 @@ class Kcar extends \App\Controllers\API\BaseController
      */
     public function __construct() {}
 
+
     public function kw_list()
     {
-        // Check login info
-
         // Validate allowed method
         $this->validateAllowedMethod([ 'GET' ]);
 
@@ -26,8 +25,11 @@ class Kcar extends \App\Controllers\API\BaseController
 
         // Read parameters
         $params = [
-            'email' => $this->request->getPostGet('email'),
-            'password' => $this->request->getPostGet('password'),
+            'is_select' => $this->commonLib->readPostGet('is_select'),
+            'sdate' => $this->commonLib->readPostGet('sdate'),
+            'edate' => $this->commonLib->readPostGet('edate'),
+            'search_key' => $this->commonLib->readPostGet('search_key'),
+            'search_value' => $this->commonLib->readPostGet('search_value'),
         ];
 
         // Set default response data
