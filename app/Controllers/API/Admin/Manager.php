@@ -53,7 +53,8 @@ class Manager extends \App\Controllers\API\BaseController
         // Set default response data
         $rtn = [
             'result' => false,
-            'message' => 'Login fail.'
+            'message' => 'Login is fail',
+            'data' => []
         ];
 
         // Get Manager entity from email

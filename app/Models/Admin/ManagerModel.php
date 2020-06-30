@@ -7,6 +7,7 @@ use CodeIgniter\Model;
  */
 class ManagerModel extends Model
 {
+    // protected $DBGroup = '';
     protected $table = 'manager';
     protected $primaryKey = 'id';
 
@@ -39,15 +40,11 @@ class ManagerModel extends Model
      * Get Manager entity from email
      *
      * @param string $email
-     * @return [\App\Entities\Admin\Manager]
+     * @return \App\Entities\Admin\Manager|null
      */
     public function getFromEmail(string $email): ?\App\Entities\Admin\Manager
     {
         $res = $this->where([ 'email' => $email ])->first();
-
-        // if (empty($res)) {
-        //     $res = new \App\Entities\Admin\Manager();
-        // }
 
         return $res;
     }

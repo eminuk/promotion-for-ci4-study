@@ -1,21 +1,28 @@
 <?php namespace App\Entities\Admin;
 
 use CodeIgniter\Entity;
-use App\Libraries;
 
 /**
  * Manager 관리를 위한 엔티티
  */
 class Manager extends Entity
 {
-
+    /**
+     * commonLib Library
+     *
+     * @var [type]
+     */
     private $commonLib;
 
+    /**
+     * Construct
+     */
     public function __construct()
     {
         parent::__construct();
 
-        $this->commonLib = new Libraries\CommonLib();
+        // Load libraries
+        $this->commonLib = new \App\Libraries\CommonLib();
     }
 
     /**
