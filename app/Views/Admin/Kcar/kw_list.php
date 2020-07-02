@@ -117,7 +117,7 @@
 
     <div>
     <button type="button" onclick="return doDelete();">삭제</button>
-    <button type="button" onclick="">EXCEL 다운</button>
+    <button type="button" onclick="return downloadExcel();">EXCEL 다운</button>
     <button type="button" onclick="">EXCEL 업로드</button>
     </div>
     <br />
@@ -315,6 +315,19 @@
             complete: function (jqXHR, textStatus, form) {}
         });
         return false;
+    }
+
+    // Download excel
+    function downloadExcel () {
+        if ($('input[name=sdate]').val() == '') {
+            alert('날짜를 선택해 주세요.');
+            return;
+        }
+        if ($('input[name=edate]').val() == '') {
+            alert('날짜를 선택해 주세요.');
+            return;
+        }
+        location.href = '/admin/kcar/kwListExcel?' + $('form[name=search_form]').serialize();
     }
 
 

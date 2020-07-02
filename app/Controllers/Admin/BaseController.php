@@ -37,6 +37,13 @@ class BaseController extends Controller
     protected $session;
 
     /**
+     * validation variable
+     *
+     * @var [type]
+     */
+    protected $validation;
+
+    /**
      * CommonLib
      *
      * @var CommonLib
@@ -78,6 +85,7 @@ class BaseController extends Controller
         // $this->session = \Config\Services::session();
 
         $this->session = \Config\Services::session();
+        $this->validation = \Config\Services::validation();
         $this->commonLib = new \App\Libraries\CommonLib();
 
 

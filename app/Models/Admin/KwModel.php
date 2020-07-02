@@ -36,9 +36,10 @@ class KwModel extends Model
      * Get Kw promotion list
      *
      * @param array $params
+     * @param boolean $use_paging
      * @return array
      */
-    public function getKwList(array $params = []): array
+    public function getKwList(array $params = [], bool $use_paging = true): array
     {
         // Default return variable
         $rtn = array('result' => false, 'message' => '', 'list' => [], 'total_rows' => 0);
@@ -80,7 +81,7 @@ class KwModel extends Model
                 case 'kw_code':
                     $sql_where .= "AND kp.items LIKE :search_value: ESCAPE '!' ";
                     $sql_params['search_value'] = '%'.$this->db->escapeString($params['search_value']).'%';
-                break;
+                    break;
                 case 'car_number':
                     $sql_where .= "AND k.car_number LIKE :search_value: ESCAPE '!' ";
                     $sql_params['search_value'] = '%'.$this->db->escapeString($params['search_value']).'%';
@@ -130,7 +131,10 @@ class KwModel extends Model
 
         // 페이징
         $offset = ($params['page_num'] - 1) * $params['page_size'];
-        $sql_limit = "LIMIT ".$this->db->escapeString($offset).", ".$this->db->escapeString($params['page_size'])." ";
+        $sql_limit = '';
+        if ($use_paging) {
+            $sql_limit = "LIMIT ".$this->db->escapeString($offset).", ".$this->db->escapeString($params['page_size'])." ";
+        }
 
         $sql = "
             SELECT SQL_CALC_FOUND_ROWS 

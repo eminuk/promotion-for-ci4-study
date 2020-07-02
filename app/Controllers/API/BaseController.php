@@ -39,6 +39,13 @@ class BaseController extends Controller
     protected $session;
 
     /**
+     * validation variable
+     *
+     * @var [type]
+     */
+    protected $validation;
+
+    /**
      * CommonLib instance
      *
      * @var CommonLib
@@ -69,6 +76,7 @@ class BaseController extends Controller
         // $this->session = \Config\Services::session();
 
         $this->session = \Config\Services::session();
+        $this->validation = \Config\Services::validation();
         $this->commonLib = new \App\Libraries\CommonLib();
 
         // Set ResponseTrait
@@ -123,12 +131,9 @@ class BaseController extends Controller
      */
     protected function validateVariable($var, string $validate_rule): void
     {
-        // Load validation library
-        $validation =  \Config\Services::validation();
-
-        if (!$validation->check($var, $validate_rule)) {
+        if (!$this->validation->check($var, $validate_rule)) {
             $this->fail(
-                $validation->getErrors(),
+                $this->validation->getErrors(),
                 422,
                 'Parameter validate is fail',
                 'Parameter validate is fail'

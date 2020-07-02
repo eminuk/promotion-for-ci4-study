@@ -73,7 +73,7 @@ class Manager extends \App\Controllers\API\BaseController
                 'result' => true,
                 'message' => '',
                 'data' => [
-                    'redirect_url' => '/admin/kcar/kw_list'
+                    'redirect_url' => '/admin/kcar/kwList'
                 ]
             ];
 
