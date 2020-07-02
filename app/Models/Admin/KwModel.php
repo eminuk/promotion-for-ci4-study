@@ -136,8 +136,15 @@ class KwModel extends Model
             SELECT SQL_CALC_FOUND_ROWS 
                 k.id, k.kw_code, k.kw_price, k.kw_branch, k.car_number, k.car_manufacturer, k.car_model, 
                 k.cus_name, k.cus_mobile, k.bnft_price, 
-                kc.bnft_code, IF(kc.product_id IS NULL, 'N', 'Y') AS is_select, kc.select_at, 
+                kc.bnft_code, IF(kc.product_id IS NULL, '미신청', '신청') AS is_select_kr, kc.select_at, 
                 kc.cus_zip, kc.cus_addr1, kc.cus_addr2, kc.send_sms, 
+                CASE kc.send_sms 
+                    WHEN 0 THEN '미발송' 
+                    WHEN 1 THEN '발송완료' 
+                    WHEN 2 THEN '발송실패' 
+                    WHEN 3 THEN '재발송요청' 
+                    ELSE '-' 
+                END AS send_sms_kr, 
                 kp.type, kp.items, kp.img 
             FROM kcar_kw AS k 
                 JOIN kcar_kw_customer AS kc ON k.id = kc.kw_id 
@@ -152,7 +159,7 @@ class KwModel extends Model
 
         $rtn['list'] = $query->getResultArray();
         $error = $this->error();
-        if ($error['code'] == 0) {
+        if ($error['code'] !== 0) {
             $rtn['result'] = false;
             $rtn['message'] = $error['message'];
             return $rtn;
@@ -161,7 +168,7 @@ class KwModel extends Model
 
 
         // Get total count
-        $query = $this->query('SELECT FOUND_ROWS() AS total_rows; ');
+        $query = $this->query("SELECT FOUND_ROWS() AS total_rows; ");
         $rtn['total_rows'] = $query->getRowArray()['total_rows'];
         $query->freeResult();
 
@@ -170,4 +177,145 @@ class KwModel extends Model
 
         return $rtn;
     }
+
+    /**
+     * Get Kw promotion info
+     *
+     * @param integer $kw_id
+     * @return array
+     */
+    public function getKwInfo(int $kw_id = 0): array
+    {
+        // Default return variable
+        $rtn = array('result' => false, 'message' => '', 'row' => []);
+
+
+        // Get list
+        $sql_params = [
+            'kw_id' => $kw_id
+        ];
+
+        $sql = "
+            SELECT 
+                k.id, k.kw_code, k.kw_price, k.kw_branch, k.car_number, k.car_manufacturer, k.car_model, 
+                k.cus_name, k.cus_mobile, k.bnft_price, 
+                kc.bnft_code, IF(kc.product_id IS NULL, '미신청', '신청') AS is_select_kr, kc.select_at, 
+                kc.cus_zip, kc.cus_addr1, kc.cus_addr2, kc.send_sms, 
+                CASE kc.send_sms 
+                    WHEN 0 THEN '미발송' 
+                    WHEN 1 THEN '발송완료' 
+                    WHEN 2 THEN '발송실패' 
+                    WHEN 3 THEN '재발송요청' 
+                    ELSE '-' 
+                END AS send_sms_kr, 
+                kp.type, kp.items, kp.img 
+            FROM kcar_kw AS k 
+                JOIN kcar_kw_customer AS kc ON k.id = kc.kw_id 
+                LEFT JOIN kcar_kw_product AS kp ON kc.product_id = kp.id 
+            WHERE k.status = 1 AND k.id = :kw_id:
+            LIMIT 1 
+            ;
+        ";
+        $query = $this->query($sql, $sql_params);
+
+        $rtn['row'] = $query->getRowArray();
+        $error = $this->error();
+        if ($error['code'] !== 0) {
+            $rtn['result'] = false;
+            $rtn['message'] = $error['message'];
+            return $rtn;
+        }
+        $query->freeResult();
+
+
+        $rtn['result'] = true;
+
+        return $rtn;
+    }
+
+    /**
+     * Delete Kw promotion data
+     *
+     * @param array $kw_ids
+     * @return array
+     */
+    public function deleteKw(array $kw_ids = []): array
+    {
+        // Default return variable
+        $rtn = array('result' => false, 'message' => '', 'affected_row' => 0);
+
+
+        // Get list
+        $sql_params = [
+            'kw_ids' => $kw_ids
+        ];
+
+        $sql = "
+            UPDATE kcar_kw AS k 
+            SET k.status = 0 
+            WHERE k.id IN :kw_ids: AND k.status = 1 
+            ;
+        ";
+        $query = $this->db->query($sql, $sql_params);
+
+        $error = $this->error();
+        if ($error['code'] !== 0) {
+            $rtn['result'] = false;
+            $rtn['message'] = $error['message'];
+            return $rtn;
+        }
+
+        $rtn['result'] = true;
+        $rtn['affected_row'] = $this->db->affectedRows();
+
+
+        return $rtn;
+    }
+
+
+    /**
+     * Get KW product info
+     *
+     * @param string $kw_code
+     * @param string $bnft_price
+     * @return array
+     */
+    public function getKwProductInfo(string $kw_code, string $bnft_price): array
+    {
+        // Default return variable
+        $rtn = array('result' => false, 'message' => '', 'list' => [], 'total_rows' => 0);
+
+
+        // Get list
+        $sql_params = [
+            'kw_code' => $kw_code,
+            'bnft_price' => $bnft_price
+        ];
+        $sql = "
+            SELECT 
+                kp.type, kp.items, 
+                kb.bnft_code 
+            FROM kcar_kw_product AS kp 
+                JOIN kcar_kw_benefit AS kb ON kp.bnft_price = kb.bnft_price 
+            WHERE kp.kw_code = :kw_code: AND kp.bnft_price = :bnft_price: AND kp.status = 1 
+            ;
+        ";
+        $query = $this->query($sql, $sql_params);
+
+        $rtn['list'] = $query->getResultArray();
+        $error = $this->error();
+        if ($error['code'] !== 0) {
+            $rtn['result'] = false;
+            $rtn['message'] = $error['message'];
+            return $rtn;
+        }
+        $query->freeResult();
+
+
+        $rtn['result'] = true;
+
+        return $rtn;
+    }
+
+    
 }

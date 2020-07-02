@@ -115,6 +115,30 @@ class BaseController extends Controller
     }
 
     /**
+     * Validte variable
+     *
+     * @param [type] $var
+     * @param string $validate_rule
+     * @return void
+     */
+    protected function validateVariable($var, string $validate_rule): void
+    {
+        // Load validation library
+        $validation =  \Config\Services::validation();
+
+        if (!$validation->check($var, $validate_rule)) {
+            $this->fail(
+                $validation->getErrors(),
+                422,
+                'Parameter validate is fail',
+                'Parameter validate is fail'
+            );
+            $this->response->send();
+            exit();
+        }
+    }
+
+    /**
      * Check login session and response.
      *
      * @param boolean $is_auto
