@@ -256,12 +256,11 @@ class KwModel extends Model
 
         $sql = "
             UPDATE kcar_kw AS k 
-            SET k.status = 0 
+            SET k.status = 2 
             WHERE k.id IN :kw_ids: AND k.status = 1 
             ;
         ";
         $query = $this->db->query($sql, $sql_params);
-
         $error = $this->error();
         if ($error['code'] !== 0) {
             $rtn['result'] = false;
@@ -272,6 +271,34 @@ class KwModel extends Model
         $rtn['result'] = true;
         $rtn['affected_row'] = $this->db->affectedRows();
 
+
+        return $rtn;
+    }
+
+    /**
+     * Insert Kw promotion data
+     *
+     * @param array $kw_data
+     * @return array
+     */
+    public function insertKwBulk(array $kw_data = []): array
+    {
+        // Default return variable
+        $rtn = array('result' => false, 'message' => '', 'affected_row' => 0);
+
+        // Create builder
+        $builder = $this->db->table('kcar_kw');
+
+        $query = $builder->ignore(true)->insertBatch($kw_data);
+        $error = $this->error();
+        if ($error['code'] !== 0) {
+            $rtn['result'] = false;
+            $rtn['message'] = $error['message'];
+            return $rtn;
+        }
+
+        $rtn['result'] = true;
+        $rtn['affected_row'] = $this->db->affectedRows();
 
         return $rtn;
     }

@@ -178,4 +178,21 @@ class Kcar extends BaseController
         $writer->close();
         exit();
     }
+
+
+    /**
+     * KW promotion data import excel sample
+     *
+     * @return void
+     */
+    public function kwExcelSample()
+    {
+        // Set file name
+        $file_name = FCPATH.'asset/sample/kcar_kw_sample__20200703000000.xlsx';
+        $download_name = 'kcar_kw_sample.xlsx';
+        
+        return $this->response->download($file_name, null)
+            ->setFileName($download_name);
+
+    }
 }

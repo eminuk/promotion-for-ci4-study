@@ -4,12 +4,15 @@
 
 <!-- head_add_area -->
 <?= $this->section('head_add_area') ?>
+<style type="text/css">
+    [show-group~="excel_upload"] { display:none; }
+</style>
 <?= $this->endSection() ?>
 
 
 <!-- content_area -->
 <?= $this->section('content_area') ?>
-    <form name="search_form" method="get" action="" accept-charset="utf-8">
+    <form name="form_search" method="get" action="" accept-charset="utf-8">
         <input type="hidden" name="page_num" value="1" />
         <?= csrf_field() ?>
         신청여부: 
@@ -116,12 +119,30 @@
     <br />
 
     <div>
-    <button type="button" onclick="return doDelete();">삭제</button>
-    <button type="button" onclick="return downloadExcel();">EXCEL 다운</button>
-    <button type="button" onclick="">EXCEL 업로드</button>
+        <button type="button" onclick="return doDelete();">삭제</button>
+        <button type="button" onclick="return downloadExcel();">EXCEL 다운</button>
+        <button type="button" onclick="return excelUploadUi();">EXCEL 업로드</button>
     </div>
     <br />
 
+
+    <fieldset show-group="excel_upload">
+        <legend>EXCEL 업로드</legend>
+        <form name="form_upload" method="post" action="" enctype="multipart/form-data">
+            <div>
+                <a href="/admin/kcar/kwExcelSample" >양식 샘플 다운로드</a>
+            </div>
+            <div>
+                <input type="file" name="file_excel" accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+            </div>
+
+            <hr />
+
+            <button type="button" onclick="return doExcelUpload();">등록</button>
+            <button type="button" onclick="return excelUploadUi();">취소</button>
+        </form>
+    </fieldset>
+    <br />
 <?= $this->endSection() ?>
 
 
@@ -135,7 +156,7 @@
             url: '/api/admin/Kcar/kwList',
             type: 'GET',
             dataType: 'json',
-            data: $('form[name=search_form]').serialize(),
+            data: $('form[name=form_search]').serialize(),
             timeout: 30000,
             beforeSubmit: function (arr, form, options) {},
             beforeSend: function (jqXHR, settings) {},
@@ -317,6 +338,54 @@
         return false;
     }
 
+    // ajax EXCEL 업로드
+    function doExcelUpload() {
+        let file_obj = $('form[name=form_upload] input[name=file_excel]');
+
+        if (file_obj.val() == '') {
+            alert('파일을 선택해주세요.');
+            return false;
+        }
+
+        // Make and Add form data
+        let form_data = new FormData($('form[name=form_upload]')[0]);
+        form_data.append("file_excel", file_obj[0].files[0]);
+
+        $.ajax({
+            url: '/api/admin/Kcar/kw',
+            type: 'POST',
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            data: form_data,
+            timeout: 30000,
+            beforeSubmit: function (arr, form, options) {},
+            beforeSend: function (jqXHR, settings) {},
+            uploadProgress: function (event, position, total, percentComplete) {},
+            success: function (data, textStatus, jqXHR) {
+                if (!data.result) {
+                    alert(data.message);
+                    return;
+                }
+
+                console.log(data); return;
+
+                // alert(data.data.affected_row + '건이 삭제 되었습니다.');
+                alert('등록되었습니다.');
+
+                // Reload list
+                doSearch(1);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR, textStatus, errorThrown);
+                alert("Ajax error has occurred. \n" + errorThrown);
+                return false;
+            },
+            complete: function (jqXHR, textStatus, form) {}
+        });
+        return false;
+    }
+
     // Download excel
     function downloadExcel () {
         if ($('input[name=sdate]').val() == '') {
@@ -327,7 +396,13 @@
             alert('날짜를 선택해 주세요.');
             return;
         }
-        location.href = '/admin/kcar/kwListExcel?' + $('form[name=search_form]').serialize();
+        location.href = '/admin/kcar/kwListExcel?' + $('form[name=form_search]').serialize();
+    }
+
+    // toggle
+    function excelUploadUi() {
+        $('form[name=form_upload]')[0].reset();
+        $('[show-group~="excel_upload"]').toggle();
     }
 
 

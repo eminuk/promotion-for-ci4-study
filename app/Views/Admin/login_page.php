@@ -23,7 +23,7 @@
 <section>
     <h1>SIGN IN (로그인)</h1>
 
-    <form name="login_form" method="post" action="" accept-charset="utf-8">
+    <form name="form_login" method="post" action="" accept-charset="utf-8">
         <?= csrf_field() ?>
         <input type="text" name="email" placeholder="이메일주소" value="<?=esc('admin@autocarz.co.kr')?>" />
         <br />
@@ -48,7 +48,7 @@ function doLogin () {
         url: '/api/admin/Manager/login',
         type: 'POST',
         dataType: 'json',
-        data: $('form').serialize(),
+        data: $('form[name=form_login]').serialize(),
         timeout: 30000,
         beforeSubmit: function (arr, form, options) {},
         beforeSend: function (jqXHR, settings) {},

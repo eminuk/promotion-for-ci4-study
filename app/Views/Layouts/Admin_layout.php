@@ -27,13 +27,14 @@
 
 <!-- CONTENT -->
 <section>
-    <?= $this->renderSection('content_area') ?>
+<?= $this->renderSection('content_area') ?>
 </section>
 
 
 <!-- FOOTER: DEBUG INFO + COPYRIGHTS -->
 <footer>
-<h1>This is footer</h1>
+    <hr />
+    <h1>This is footer</h1>
 </footer>
 
 <!-- SCRIPTS -->

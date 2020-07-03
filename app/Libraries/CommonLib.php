@@ -55,6 +55,7 @@ class CommonLib
 
         return $rtn;
     }
+
     /**
      * Read row data(PUT ,PATCH, DELETE) with default value, trim(string only) - POST & GET
      *
@@ -89,6 +90,20 @@ class CommonLib
         if (gettype($default_value) == 'integer') {
             $rtn = (int)$rtn;
         }
+
+        return $rtn;
+    }
+
+    /**
+     * Read file with default value
+     *
+     * @param string $name
+     * @return mixed|null
+     */
+    public function readFile(string $name)
+    {
+        // Read file
+        $rtn = $this->request->getFile($name);
 
         return $rtn;
     }

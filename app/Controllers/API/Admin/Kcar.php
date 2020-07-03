@@ -1,5 +1,6 @@
 <?php namespace App\Controllers\API\Admin;
 
+use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
 /**
  * Kcar 관련 API 컨트롤러
@@ -156,17 +157,316 @@ class Kcar extends \App\Controllers\API\BaseController
         return $this->respond($rtn, 200, '');
     }
 
-    /**
-     * Send sms
-     *
-     * @param string $kw_code
-     * @param string $bnft_price
-     * @return void
-     */
     public function kw()
     {
+        switch ($this->request->getMethod(TRUE)) {
+            case 'POST':
+                return $this->_kwPost();
+                break;
+            case 'DELETE':
+                return $this->_kwDelete();
+                break;
+            default:
+                $this->responseMethodNotAllowed();
+                break;
+        }
+    }
+
+    /**
+     * Import KW promotion data from excel
+     *
+     * @return void
+     */
+    private function _kwPost()
+    {
         // Validate allowed method
-        $this->validateAllowedMethod([ 'DELETE', 'GET' ]);
+        $this->validateAllowedMethod([ 'POST' ]);
+
+        // Read files
+        $file_excel = $this->commonLib->readFile('file_excel');
+
+        // Validate parameter
+        if (empty($file_excel)) {
+            $this->responseParameterValidateFail([
+                'file_excel' => 'The file is required.'
+            ]);
+        }
+
+        // Validate file
+        if (!$file_excel->isValid()) {
+            $this->responseParameterValidateFail([
+                'file_excel' => $file_excel->getErrorString().'('.$file_excel->getError().')'
+            ]);
+        }
+
+        // Set default response data
+        $rtn = [
+            'result' => true,
+            'message' => '',
+            'data' => [
+                'affected_row' => 0,
+                'dupli_row' =>0
+            ]
+        ];
+
+        // box/spout - Create reder and open file
+        $reader = ReaderEntityFactory::createXLSXReader();
+        $reader
+            ->setShouldFormatDates(true)
+            ->open($file_excel->getTempName());
+
+        // Check header row
+        $is_first_row = true;
+        // KW promotion data
+        $kw_data = [];
+
+        // box/spout - Read sheets
+        foreach ($reader->getSheetIterator() as $sheet) {
+            // box/spout - Read sheet's row
+            foreach ($sheet->getRowIterator() as $row) {
+                // box/spout - Do stuff with the row
+                $cells = $row->getCells();
+
+                // Check header row
+                if ($is_first_row) {
+                    // Check templete
+                    if (!$this->_kwPostExcelCheck($cells)) {
+                        $rtn['result'] = false;
+                        $rtn['message'] = '템플릿 변경이 감지되었습니다.';
+
+                        // box/spout - Close file
+                        $reader->close();
+
+                        return $this->respond($rtn, 200, '');
+                    }
+
+                    $is_first_row = false;
+                    continue;
+                }
+
+                // Read and add kw data
+                $res_data = $this->_kwPostReadData($cells);
+                if (!$res_data['result']) {
+                    $rtn['message'] = $res_data['message'];
+                    break;
+                }
+                $kw_data[] = $res_data['data'];
+                unset($cells, $res_data);
+
+                // Register in 100 units
+                if (count($kw_data) > 100) {
+                    // Data registration
+                    $res_reg = $this->_kwPostRegData($kw_data);
+                    if (!$res_reg['result']) {
+                        // $rtn['result'] = false;
+                        $rtn['message'] .= "\n{$res_reg['message']}";
+
+                        unset($kw_data, $res_reg);
+                        break;
+                    }
+
+                    // Add count
+                    $rtn['data']['affected_row'] += $res_reg['affected_row'];
+                    $rtn['data']['dupli_row'] += $res_reg['dupli_row'];
+
+                    unset($kw_data, $res_reg);
+                    $kw_data = [];
+                }
+            }
+            // Read only first sheet
+            break;
+        }
+
+        // box/spout - Close file
+        $reader->close();
+
+        // Register
+        if (count($kw_data) > 0) {
+            // Data registration
+            $res_reg = $this->_kwPostRegData($kw_data);
+            if (!$res_reg['result']) {
+                // $rtn['result'] = false;
+                $rtn['message'] .= "\n{$res_reg['message']}";
+            }
+        }
+
+        // Add count
+        $rtn['data']['affected_row'] += $res_reg['affected_row'];
+        $rtn['data']['dupli_row'] += $res_reg['dupli_row'];
+
+        unset($kw_data, $res_reg);
+
+        // Send sms to new KW customer
+        $this->_sendSms();
+
+        return $this->respond($rtn, 200, '');
+    }
+
+    /**
+     * Check templete
+     *
+     * @param array $cells
+     * @return bool
+     */
+    private function _kwPostExcelCheck(array $cells): bool
+    {
+        if ($cells[1]->getValue() !== '보증번호') {
+            return false;
+        }
+        if ($cells[2]->getValue() !== '상품') {
+            return false;
+        }
+        if ($cells[3]->getValue() !== '상품금액') {
+            return false;
+        }
+        if ($cells[4]->getValue() !== '발급지점') {
+            return false;
+        }
+        if ($cells[7]->getValue() !== '차량번호') {
+            return false;
+        }
+        if ($cells[8]->getValue() !== '제조사') {
+            return false;
+        }
+        if ($cells[9]->getValue() !== '모델') {
+            return false;
+        }
+        if ($cells[13]->getValue() !== '고객') {
+            return false;
+        }
+        if ($cells[14]->getValue() !== '연락처') {
+            return false;
+        }
+        if ($cells[15]->getValue() !== '우편번호') {
+            return false;
+        }
+        if ($cells[16]->getValue() !== '주소') {
+            return false;
+        }
+        if ($cells[17]->getValue() !== '상세주소') {
+            return false;
+        }
+        if ($cells[18]->getValue() !== '상품권금액') {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Read cell's data
+     *
+     * @param array $cells
+     * @return array
+     */
+    private function _kwPostReadData(array $cells): array
+    {
+        $rtn = [ 'result' => false, 'message' => '', 'data' => [] ];
+
+        $temp = [
+            'kw_number' => $cells[1]->getValue(), // 보증번호
+            'kw_code' => $cells[2]->getValue(), // 상품
+            'kw_price' => $cells[3]->getValue(), // 상품금액
+            'kw_branch' => $cells[4]->getValue(), // 발급지점
+            'car_number' => $cells[7]->getValue(), // 차량번호
+            'car_manufacturer' => $cells[8]->getValue(), // 제조사
+            'car_model' => $cells[9]->getValue(), // 모델
+            'cus_name' => $cells[13]->getValue(), // 고객
+            'cus_mobile' => $cells[14]->getValue(), // 연락처
+            'cus_zip' => $cells[15]->getValue(), // 우편번호
+            'cus_addr1' => $cells[16]->getValue(), // 주소
+            'cus_addr2' => $cells[17]->getValue(), // 상세주소
+            'bnft_price' => $cells[18]->getValue(), // 상품권금액
+        ];
+
+        // 데이터 검증
+        if (!$this->validation->check($temp['kw_number'], 'required')) {
+            $rtn['message'] = '보증번호 값이 잘못 되었습니다. - required';
+            return $rtn;
+        }
+        if (!$this->validation->check($temp['kw_code'], 'required')) {
+            $rtn['message'] = '상품 값이 잘못 되었습니다. - required';
+            return $rtn;
+        }
+        if (!$this->validation->check($temp['kw_branch'], 'required')) {
+            $rtn['message'] = '발급지점 값이 잘못 되었습니다. - required';
+            return $rtn;
+        }
+        if (!$this->validation->check($temp['car_number'], 'required')) {
+            $rtn['message'] = '차량번호 값이 잘못 되었습니다. - required';
+            return $rtn;
+        }
+        if (!$this->validation->check($temp['car_manufacturer'], 'required')) {
+            $rtn['message'] = '제조사 값이 잘못 되었습니다. - required';
+            return $rtn;
+        }
+        if (!$this->validation->check($temp['car_model'], 'required')) {
+            $rtn['message'] = '모델 값이 잘못 되었습니다. - required';
+            return $rtn;
+        }
+        if (!$this->validation->check($temp['cus_name'], 'required')) {
+            $rtn['message'] = '고객 값이 잘못 되었습니다. - required';
+            return $rtn;
+        }
+        if (!$this->validation->check($temp['cus_mobile'], 'required')) {
+            $rtn['message'] = '연락처 값이 잘못 되었습니다. - required';
+            return $rtn;
+        }
+        if (!$this->validation->check($temp['bnft_price'], 'required|is_natural')) {
+            $rtn['message'] = '상품권금액 값이 잘못 되었습니다. - required|is_natural';
+            return $rtn;
+        }
+
+        // Set respons array
+        $rtn['result'] = true;
+        $rtn['data'] = $temp;
+
+        return $rtn;
+    }
+
+    /**
+     * Data registration
+     *
+     * @param array $rows
+     * @return array
+     */
+    private function _kwPostRegData(array $rows): array
+    {
+        $rtn = [ 'result' => true, 'message' => '', 'affected_row' => 0, 'dupli_row' => 0 ];
+
+        $res = $this->_Kw_model->insertKwBulk($rows);
+        $rtn['result'] = $res['result'];
+        $rtn['message'] = $res['message'];
+        $rtn['affected_row'] = $res['affected_row'];
+        $rtn['dupli_row'] = count($rows) - $res['affected_row'];
+
+        return $rtn;
+    }
+
+    /**
+     * Send sms to new KW customer
+     *
+     * @return void
+     */
+    private function _sendSms()
+    {
+        // Create new KW customer
+
+        // roof - Get target customers
+        // roof2 - Update send_sms to 1
+        // roof2 - Send sms
+        // roof2 - Update send_sms to 2, if sms is fail
+    }
+
+    /**
+     * Delete KW promotion data
+     *
+     * @return mixed
+     */
+    private function _kwDelete()
+    {
+        // Validate allowed method
+        $this->validateAllowedMethod([ 'DELETE' ]);
 
         // Read parameters
         $kw_ids = $this->commonLib->readRawInput('kw_ids', []);

@@ -49,6 +49,7 @@ GRANT ALL PRIVILEGES ON autocarz_kcar.* TO 'autocarz'@'%' IDENTIFIED BY 'autocar
         CREATE TABLE IF NOT EXISTS kcar_kw
         (
             id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
+            kw_number VARCHAR(25) NOT NULL COMMENT 'KW 보증번호',
             kw_code VARCHAR(10) NOT NULL COMMENT 'KW 상품코드',
             kw_price INT NOT NULL COMMENT 'KW 상품가격',
             kw_branch VARCHAR(25) NOT NULL COMMENT 'KW 발급지점',
@@ -62,11 +63,12 @@ GRANT ALL PRIVILEGES ON autocarz_kcar.* TO 'autocarz'@'%' IDENTIFIED BY 'autocar
             cus_addr2 VARCHAR(100) NOT NULL DEFAULT '' COMMENT '고객 상세주소',
             bnft_price INT NOT NULL COMMENT '상품권 금액',
             
-            status TINYINT NOT NULL DEFAULT '1' COMMENT '상태 (0:비활성 / 1:정상)',
+            status TINYINT NOT NULL DEFAULT '1' COMMENT '상태 (0:등록중 / 1:정상 / 2:삭제)',
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
 
             PRIMARY KEY (id),
+            UNIQUE KEY (kw_number),
             INDEX (kw_code),
             INDEX (car_manufacturer),
             INDEX (bnft_price),

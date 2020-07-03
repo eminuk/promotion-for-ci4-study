@@ -88,6 +88,33 @@ class BaseController extends Controller
 
 
     /**
+     * Response http 405 Method Not Allowed
+     *
+     * @return void
+     */
+    protected function responseMethodNotAllowed()
+    {
+        $this->fail($this->request->getMethod(TRUE).' is not allowed', 405, 'Method Not Allowed', '');
+        $this->response->send();
+        exit();
+    }
+
+    /**
+     * Response http 422 Parameter validate is fail
+     *
+     * @param array $message
+     * @return void
+     */
+    protected function responseParameterValidateFail(array $message)
+    {
+        $this->fail(
+            $message, 422, 'Parameter validate is fail', 'Parameter validate is fail'
+        );
+        $this->response->send();
+        exit();
+    }
+
+    /**
      * Validate allowed method
      *
      * @param array $allowed_method
@@ -96,9 +123,7 @@ class BaseController extends Controller
     protected function validateAllowedMethod(array $allowed_method = []): void
     {
         if (!in_array($this->request->getMethod(TRUE), $allowed_method)) {
-            $this->fail($this->request->getMethod(TRUE).' is not allowed', 405, 'Method Not Allowed', '');
-            $this->response->send();
-            exit();
+            $this->responseMethodNotAllowed();
         }
     }
 
@@ -111,14 +136,7 @@ class BaseController extends Controller
     protected function validateParameter(array $validate_rule = []): void
     {
         if (!$this->validate($validate_rule)) {
-            $this->fail(
-                $this->validator->getErrors(),
-                422,
-                'Parameter validate is fail',
-                'Parameter validate is fail'
-            );
-            $this->response->send();
-            exit();
+            $this->responseParameterValidateFail($this->validator->getErrors());
         }
     }
 
@@ -132,14 +150,7 @@ class BaseController extends Controller
     protected function validateVariable($var, string $validate_rule): void
     {
         if (!$this->validation->check($var, $validate_rule)) {
-            $this->fail(
-                $this->validation->getErrors(),
-                422,
-                'Parameter validate is fail',
-                'Parameter validate is fail'
-            );
-            $this->response->send();
-            exit();
+            $this->responseParameterValidateFail($this->validation->getErrors());
         }
     }
 
