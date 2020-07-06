@@ -253,8 +253,8 @@ class Kcar extends \App\Controllers\API\BaseController
                 $kw_data[] = $res_data['data'];
                 unset($cells, $res_data);
 
-                // Register in 100 units
-                if (count($kw_data) > 100) {
+                // Register in 200 units
+                if (count($kw_data) > 200) {
                     // Data registration
                     $res_reg = $this->_kwPostRegData($kw_data);
                     if (!$res_reg['result']) {
@@ -297,11 +297,10 @@ class Kcar extends \App\Controllers\API\BaseController
         unset($kw_data, $res_reg);
 
         // Send sms to new KW customer
-        $this->_sendSms();
+        $res_sms = $this->_sendSms();
 
         return $this->respond($rtn, 200, '');
     }
-
     /**
      * Check templete
      *
@@ -352,7 +351,6 @@ class Kcar extends \App\Controllers\API\BaseController
 
         return true;
     }
-
     /**
      * Read cell's data
      *
@@ -423,7 +421,6 @@ class Kcar extends \App\Controllers\API\BaseController
 
         return $rtn;
     }
-
     /**
      * Data registration
      *
@@ -442,20 +439,70 @@ class Kcar extends \App\Controllers\API\BaseController
 
         return $rtn;
     }
-
     /**
      * Send sms to new KW customer
      *
-     * @return void
+     * @return array
      */
-    private function _sendSms()
+    private function _sendSms(): array
     {
-        // Create new KW customer
+        $rtn = [ 'result' => true, 'message' => '' ];
 
-        // roof - Get target customers
-        // roof2 - Update send_sms to 1
-        // roof2 - Send sms
-        // roof2 - Update send_sms to 2, if sms is fail
+        // Create Kw promotion user data
+        $res_create = $this->_Kw_model->createCustomer();
+
+        // 무한 루프 방지 하기 위해 반복 횟수 제한
+        $do_cunter = 500;
+        do {
+            // Get KW Customer List in 100 units for send sms
+            $res_customer = $this->_Kw_model->getSmsTarget();
+            if (!$res_customer['result']) {
+                $rtn['result'] = false;
+                $rtn['message'] = $res_customer['message'];
+                return $rtn;
+            }
+
+            // Send SMS progress
+            foreach ($res_customer['list'] as $item) {
+                // Set Kw promotion customer to sms sended
+                $res_send = $this->_Kw_model->setCustomerSmsSended($item['customer_id']);
+                if (!$res_send['result']) {
+                    $rtn['result'] = false;
+                    $rtn['message'] = $res_send['message'];
+                    return $rtn;
+                }
+
+                // Check sms state
+                if ($res_send['affected_row'] == 0) {
+                    continue;
+                }
+
+                // Send SMS
+                $sms_to = $item['cus_mobile'];
+                $sms_title = '타이틀 필요';
+                $sms_content = '템플릿 필요';
+                $sms_res = $this->commonLib->sendLms($sms_to, $sms_title, $sms_content);
+                if (!$sms_res['result']) {
+                    $rtn['result'] = false;
+                    $rtn['message'] = $sms_res['message'];
+
+                    // Set Kw promotion customer to sms fail
+                    $res_fail = $this->_Kw_model->setCustomerSmsFail($item['customer_id']);
+                    if (!$res_fail['result']) {
+                        $rtn['message'] .= $res_fail['message'];
+                    }
+
+                    return $rtn;
+                }
+
+                unset($res_send, $sms_res);
+            }
+
+            unset($res_customer);
+        } while ($do_cunter-- > 0);
+
+
+        return $rtn;
     }
 
     /**

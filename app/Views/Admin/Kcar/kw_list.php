@@ -206,7 +206,7 @@
                         .append($('<td/>', { text: item.cus_zip }))
                         .append($('<td/>', { text: item.cus_addr1 }))
                         .append($('<td/>', { text: item.cus_addr2 }))
-                        .append($('<td/>', { text: item.items }))
+                        .append($('<td/>', { text: item.type_kr }))
                         .append($('<td/>', { text: item.send_sms_kr }))
                         .append($('<td/>')
                             .append($('<button/>', {

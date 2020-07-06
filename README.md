@@ -63,7 +63,7 @@ GRANT ALL PRIVILEGES ON autocarz_kcar.* TO 'autocarz'@'%' IDENTIFIED BY 'autocar
             cus_addr2 VARCHAR(100) NOT NULL DEFAULT '' COMMENT '고객 상세주소',
             bnft_price INT NOT NULL COMMENT '상품권 금액',
             
-            status TINYINT NOT NULL DEFAULT '1' COMMENT '상태 (0:등록중 / 1:정상 / 2:삭제)',
+            status TINYINT NOT NULL DEFAULT '0' COMMENT '상태 (0:등록중 / 1:정상 / 2:삭제)',
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
 
@@ -110,7 +110,7 @@ GRANT ALL PRIVILEGES ON autocarz_kcar.* TO 'autocarz'@'%' IDENTIFIED BY 'autocar
             cus_zip VARCHAR(6) NOT NULL DEFAULT '' COMMENT '고객 우편번호',
             cus_addr1 VARCHAR(100) NOT NULL DEFAULT '' COMMENT '고객 주소',
             cus_addr2 VARCHAR(100) NOT NULL DEFAULT '' COMMENT '고객 상세주소',
-            send_sms TINYINT NOT NULL DEFAULT 0 COMMENT 'SMS 발송여부 (0:미발송 / 1:발송완료 / 2:발송실패 / 3:재발송요청)',
+            send_sms TINYINT NOT NULL DEFAULT 0 COMMENT 'SMS 발송여부 (0:미발송 / 1:발송완료 / 2:발송실패)',
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
 

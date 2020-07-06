@@ -149,7 +149,13 @@ class KwModel extends Model
                     WHEN 3 THEN '재발송요청' 
                     ELSE '-' 
                 END AS send_sms_kr, 
-                kp.type, kp.items, kp.img 
+                kp.id AS product_id, kp.type, kp.items, kp.img,
+                CASE kp.type 
+                    WHEN 1 THEN '출장세차' 
+                    WHEN 2 THEN '세차용품' 
+                    WHEN 3 THEN '자동차용품' 
+                    ELSE '-'
+                END AS type_kr 
             FROM kcar_kw AS k 
                 JOIN kcar_kw_customer AS kc ON k.id = kc.kw_id 
                 LEFT JOIN kcar_kw_product AS kp ON kc.product_id = kp.id 
@@ -249,7 +255,7 @@ class KwModel extends Model
         $rtn = array('result' => false, 'message' => '', 'affected_row' => 0);
 
 
-        // Get list
+        // Set delete state
         $sql_params = [
             'kw_ids' => $kw_ids
         ];
@@ -348,5 +354,194 @@ class KwModel extends Model
         return $rtn;
     }
 
-    
+
+    /**
+     * Create Kw promotion user data
+     *
+     * @return array
+     */
+    public function createCustomer(): array
+    {
+        // Default return variable
+        $rtn = array('result' => false, 'message' => '', 'affected_row' => 0);
+
+
+        // Transactions - start
+        $this->db->transBegin();
+
+
+        // Create customer date
+        $sql = "
+            INSERT IGNORE INTO kcar_kw_customer(kw_id, bnft_code) 
+            SELECT k.id AS kw_id, kb.bnft_code 
+            FROM kcar_kw AS k 
+                JOIN kcar_kw_benefit AS kb ON k.bnft_price = kb.bnft_price 
+            WHERE k.status = 0 
+            ORDER BY k.id ASC 
+            ;
+        ";
+        $query = $this->db->query($sql);
+        $error = $this->error();
+        if ($error['code'] !== 0) {
+            // Transactions - rollback
+            $this->db->transRollback();
+
+            $rtn['result'] = false;
+            $rtn['message'] = $error['message'];
+            return $rtn;
+        }
+
+        $rtn['result'] = true;
+        $rtn['affected_row'] = $this->db->affectedRows();
+
+
+        // Set kw state
+        $sql = "
+            UPDATE kcar_kw AS k 
+                JOIN kcar_kw_customer AS kc ON k.id = kc.kw_id 
+            SET k.status = 1 
+            WHERE k.status = 0 
+            ;
+        ";
+        $query = $this->db->query($sql);
+        if ($error['code'] !== 0) {
+            // Transactions - rollback
+            $this->db->transRollback();
+
+            $rtn['result'] = false;
+            $rtn['message'] = $error['message'];
+            return $rtn;
+        }
+
+
+        if ($this->db->transStatus() === false) {
+            // Transactions - rollback
+            $this->db->transRollback();
+        } else {
+            // Transactions - commit
+            $this->db->transCommit();
+        }
+
+
+        return $rtn;
+    }
+
+    /**
+     * Get KW Customer List for send sms
+     *
+     * @return array
+     */
+    public function getSmsTarget(): array
+    {
+        // Default return variable
+        $rtn = array('result' => false, 'message' => '', 'list' => [], 'total_rows' => 0);
+
+
+        // Get list
+        $sql = "
+            SELECT SQL_CALC_FOUND_ROWS 
+                k.cus_name, k.cus_mobile, 
+                kc.id AS customer_id 
+            FROM kcar_kw_customer AS kc 
+                JOIN kcar_kw AS k ON kc.kw_id = k.id 
+            WHERE kc.send_sms = 0 
+            LIMIT 100 
+            ;
+        ";
+        $query = $this->query($sql);
+
+        $rtn['list'] = $query->getResultArray();
+        $error = $this->error();
+        if ($error['code'] !== 0) {
+            $rtn['result'] = false;
+            $rtn['message'] = $error['message'];
+            return $rtn;
+        }
+        $query->freeResult();
+
+
+        // Get total count
+        $query = $this->query("SELECT FOUND_ROWS() AS total_rows; ");
+        $rtn['total_rows'] = $query->getRowArray()['total_rows'];
+        $query->freeResult();
+
+
+        $rtn['result'] = true;
+
+        return $rtn;
+    }
+
+    /**
+     * Set Kw promotion customer to sms sended
+     *
+     * @return array
+     */
+    public function setCustomerSmsSended(int $customer_id): array
+    {
+        // Default return variable
+        $rtn = array('result' => false, 'message' => '', 'affected_row' => 0);
+
+
+        // Get list
+        $sql_params = [
+            'customer_id' => $customer_id
+        ];
+
+        $sql = "
+            UPDATE kcar_kw_customer AS ks 
+            SET ks.send_sms = 1 
+            WHERE ks.id = :customer_id: AND ks.send_sms = 0 
+            ;
+        ";
+        $query = $this->db->query($sql, $sql_params);
+        $error = $this->error();
+        if ($error['code'] !== 0) {
+            $rtn['result'] = false;
+            $rtn['message'] = $error['message'];
+            return $rtn;
+        }
+
+        $rtn['result'] = true;
+        $rtn['affected_row'] = $this->db->affectedRows();
+
+
+        return $rtn;
+    }
+
+    /**
+     * Set Kw promotion customer to sms fail
+     *
+     * @return array
+     */
+    public function setCustomerSmsFail(int $customer_id): array
+    {
+        // Default return variable
+        $rtn = array('result' => false, 'message' => '', 'affected_row' => 0);
+
+
+        // Get list
+        $sql_params = [
+            'customer_id' => $customer_id
+        ];
+
+        $sql = "
+            UPDATE kcar_kw_customer AS ks 
+            SET ks.send_sms = 0 
+            WHERE ks.id = :customer_id: AND ks.send_sms = 1 
+            ;
+        ";
+        $query = $this->db->query($sql, $sql_params);
+        $error = $this->error();
+        if ($error['code'] !== 0) {
+            $rtn['result'] = false;
+            $rtn['message'] = $error['message'];
+            return $rtn;
+        }
+
+        $rtn['result'] = true;
+        $rtn['affected_row'] = $this->db->affectedRows();
+
+
+        return $rtn;
+    }
 }
