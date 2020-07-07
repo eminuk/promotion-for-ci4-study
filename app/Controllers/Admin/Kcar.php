@@ -12,7 +12,7 @@ use Box\Spout\Common\Entity\Row;
 /**
  * Kcar manage page controller
  */
-class Kcar extends BaseController
+class Kcar extends \App\Controllers\Admin\BaseController
 {
     /**
      * Kw model

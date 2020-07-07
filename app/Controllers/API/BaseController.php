@@ -155,6 +155,18 @@ class BaseController extends Controller
     }
 
     /**
+     * Validte check
+     *
+     * @param [type] $var
+     * @param string $validate_rule
+     * @return bool
+     */
+    protected function validateCheck($var, string $validate_rule): bool
+    {
+        return $this->validation->check($var, $validate_rule);
+    }
+
+    /**
      * Check login session and response.
      *
      * @param boolean $is_auto

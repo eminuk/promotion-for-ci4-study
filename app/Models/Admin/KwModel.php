@@ -154,7 +154,7 @@ class KwModel extends Model
                     WHEN 1 THEN '출장세차' 
                     WHEN 2 THEN '세차용품' 
                     WHEN 3 THEN '자동차용품' 
-                    ELSE '-'
+                    ELSE '-' 
                 END AS type_kr 
             FROM kcar_kw AS k 
                 JOIN kcar_kw_customer AS kc ON k.id = kc.kw_id 
@@ -330,11 +330,12 @@ class KwModel extends Model
         ];
         $sql = "
             SELECT 
-                kp.type, kp.items, 
+                kp.type, kp.items, kp.img, 
                 kb.bnft_code 
             FROM kcar_kw_product AS kp 
                 JOIN kcar_kw_benefit AS kb ON kp.bnft_price = kb.bnft_price 
             WHERE kp.kw_code = :kw_code: AND kp.bnft_price = :bnft_price: AND kp.status = 1 
+            ORDER BY kp.type ASC 
             ;
         ";
         $query = $this->query($sql, $sql_params);
@@ -350,6 +351,59 @@ class KwModel extends Model
 
 
         $rtn['result'] = true;
+
+        return $rtn;
+    }
+
+    /**
+     * Get KW product info
+     *
+     * @param string $kw_code
+     * @param string $bnft_price
+     * @return array
+     */
+    public function setKwProductSelect(array $params): array
+    {
+        // Default return variable
+        $rtn = array('result' => false, 'message' => '', 'affected_row' => 0);
+
+
+        // Set product select
+        $sql_params = $params;
+
+        $sql = "
+            UPDATE kcar_kw_customer AS kc 
+                JOIN (
+                    SELECT k.id, kp.id AS product_id 
+                    FROM kcar_kw AS k 
+                        LEFT JOIN kcar_kw_product AS kp ON k.kw_code = kp.kw_code 
+                            AND k.bnft_price = kp.bnft_price 
+                            AND kp.status = 1 
+                            AND kp.type = :type: 
+                    WHERE k.cus_name = :cus_name: AND k.cus_mobile = :cus_mobile: AND k.status = 1 
+                    ORDER BY k.id DESC 
+                    LIMIT 1 
+                ) AS s ON kc.kw_id = s.id
+            SET kc.cus_zip = :cus_zip:, 
+                kc.cus_addr1 = :cus_addr1:, 
+                kc.cus_addr2 = :cus_addr2:, 
+                kc.product_id = s.product_id, 
+                kc.select_at = NOW() 
+            WHERE kc.product_id IS NULL 
+            ;
+        ";
+        $query = $this->query($sql, $sql_params);
+
+        $rtn['list'] = $query->getResultArray();
+        $error = $this->error();
+        if ($error['code'] !== 0) {
+            $rtn['result'] = false;
+            $rtn['message'] = $error['message'];
+            return $rtn;
+        }
+
+        $rtn['result'] = true;
+        $rtn['affected_row'] = $this->db->affectedRows();
 
         return $rtn;
     }
@@ -541,6 +595,61 @@ class KwModel extends Model
         $rtn['result'] = true;
         $rtn['affected_row'] = $this->db->affectedRows();
 
+
+        return $rtn;
+    }
+
+
+    /**
+     * Get KW customer info
+     *
+     * @param string $kw_code
+     * @param string $bnft_price
+     * @return array
+     */
+    public function getCustomerInfo(string $cus_name, string $cus_mobile): array
+    {
+        // Default return variable
+        $rtn = array('result' => false, 'message' => '', 'row' => [], 'total_rows' => 0);
+
+
+        // Get list
+        $sql_params = [
+            'cus_name' => $cus_name,
+            'cus_mobile' => $cus_mobile
+        ];
+        $sql = "
+            SELECT 
+                k.kw_code, k.bnft_price, 
+                kc.cus_zip, kc.cus_addr1, kc.cus_addr2, 
+                kp.type, kp.img, kp.items, 
+                CASE kp.type 
+                    WHEN 1 THEN '출장세차' 
+                    WHEN 2 THEN '세차용품' 
+                    WHEN 3 THEN '자동차용품' 
+                    ELSE '-' 
+                END AS type_kr 
+            FROM kcar_kw AS k 
+                LEFT JOIN kcar_kw_customer AS kc ON k.id = kc.kw_id 
+                LEFT JOIN kcar_kw_product AS kp ON kc.product_id = kp.id AND kp.status = 1
+            WHERE k.cus_name = :cus_name: AND k.cus_mobile = :cus_mobile: AND k.status = 1 
+            ORDER BY k.id DESC 
+            LIMIT 1 
+            ;
+        ";
+        $query = $this->query($sql, $sql_params);
+
+        $rtn['row'] = $query->getRowArray();
+        $error = $this->error();
+        if ($error['code'] !== 0) {
+            $rtn['result'] = false;
+            $rtn['message'] = $error['message'];
+            return $rtn;
+        }
+        $query->freeResult();
+
+
+        $rtn['result'] = true;
 
         return $rtn;
     }

@@ -25,7 +25,7 @@
 
     <form name="form_login" method="post" action="" accept-charset="utf-8">
         <?= csrf_field() ?>
-        <input type="text" name="email" placeholder="이메일주소" value="<?=esc('admin@autocarz.co.kr')?>" />
+        <input type="email" name="email" placeholder="이메일주소" value="<?=esc('admin@autocarz.co.kr')?>" />
         <br />
         <input type="password" name="password" placeholder="패스워드" value="autocarz1234" />
         <br />

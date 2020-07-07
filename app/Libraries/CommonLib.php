@@ -110,6 +110,26 @@ class CommonLib
 
 
 
+    /**
+     * Check mobile nunber pattern
+     *
+     * @param string $input
+     * @param boolean $no_dash
+     * @return boolean
+     */
+     public function isMobileNum(string $input, bool $no_dash = true): bool
+    {
+        $regexp_dash = '/^01\d-\d{3,4}-\d{4}$/';
+        $regexp_no_dash = '/^01\d{8,9}$/';
+
+        $pattern = ($no_dash)?$regexp_no_dash: $regexp_dash;
+        $res = preg_match($pattern, $input);
+
+        return ($res === 1);
+    }
+
+
+
 
 
 
