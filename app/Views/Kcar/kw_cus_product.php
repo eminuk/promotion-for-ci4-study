@@ -5,6 +5,7 @@
 <!-- head_add_area -->
 <?= $this->section('head_add_area') ?>
 <style type="text/css">
+    [show-group~="type_1"] { display:none; }
 </style>
 <?= $this->endSection() ?>
 
@@ -24,7 +25,7 @@
             <label>
                 <p>출장세차 서비스 - 서비스 항목</p>
                 <p><?=$view['wash_service']['items']?></p>
-                <input type="radio" name='type' value="1" />
+                <input type="radio" name='type' value="1" checked />
             </label>
         <?php endif ?>
         <?php if (!empty($view['wash_goods'])) :?>
@@ -55,6 +56,17 @@
     </div>
     <br />
 
+    <div show-group="type_1">
+        <p>출장세차 서비스 희망 일정(3회)을 입력해주세요.</p>
+        희망일자 (1)<input type="date" name="hope_1" placeholder="날짜를 선택해주세요." value="" />
+        <br />
+        희망일자 (2)<input type="date" name="hope_2" placeholder="날짜를 선택해주세요." value="" />
+        <br />
+        희망일자 (3)<input type="date" name="hope_3" placeholder="날짜를 선택해주세요." value="" />
+        <br />
+    </div>
+    <br />
+
     <div>
         <p>유의 사항안내</p>
         <div>유의해 주세요.</div>
@@ -82,6 +94,21 @@
 <!-- footer_script_area -->
 <?= $this->section('footer_script_area') ?>
 <script type="text/javascript">
+    $(function () {
+        // 상품 선택에 따른 화면 처리
+        $('input[name=type]').change(function (event) {
+            if ($('input[name=type]:checked').val() == 1) {
+                $('[show-group~="type_1"]').show();
+            } else {
+                $('[show-group~="type_1"]').hide();
+            }
+        });
+
+
+        // 초기화
+        $('input[name=type]').change();
+    });
+
     // ajax - 상품 선택
     function doApply() {
         $.ajax({

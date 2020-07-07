@@ -387,6 +387,9 @@ class KwModel extends Model
             SET kc.cus_zip = :cus_zip:, 
                 kc.cus_addr1 = :cus_addr1:, 
                 kc.cus_addr2 = :cus_addr2:, 
+                kc.hope_1 = :hope_1:, 
+                kc.hope_2 = :hope_2:, 
+                kc.hope_3 = :hope_3:, 
                 kc.product_id = s.product_id, 
                 kc.select_at = NOW() 
             WHERE kc.product_id IS NULL 

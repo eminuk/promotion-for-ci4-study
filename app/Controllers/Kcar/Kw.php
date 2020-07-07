@@ -41,8 +41,6 @@ class Kw extends \App\Controllers\Kcar\BaseController
             'cus_mobile' => $this->commonLib->readPostGet('cus_mobile'),
         ];
 
-        error_log(var_export($params, true));
-
         // Validate parameter
         if (empty($params['cus_name'])) {
             return redirect()->to('/Kcar/Kw');
