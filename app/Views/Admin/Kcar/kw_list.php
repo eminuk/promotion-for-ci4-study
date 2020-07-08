@@ -231,6 +231,8 @@
                             }
                         }))
                     );
+
+                    $('#list_body').append(tr_elem);
                 });
 
 

@@ -107,13 +107,13 @@ class BaseController extends Controller
         }
 
         // Check session and make view data for admin layout.
-        if (!$this->session->has('admin_login')) {
-            redirect()->to('/admin')->send();
-            exit();
+        if (!$this->session->has('user_login')) {
+            // redirect()->to('/')->send();
+            // exit();
+            $this->commonLib->jsAlertRedirect('Login is required.', '/');
         } else {
             $this->view_data = [
-                'admin_layout' => [
-                    'manager_name' => $this->session->get('admin_login')['manager_name']
+                'kw_layout' => [
                 ]
             ];
             return;

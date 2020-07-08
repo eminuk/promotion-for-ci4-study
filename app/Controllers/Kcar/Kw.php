@@ -48,11 +48,12 @@ class Kw extends \App\Controllers\Kcar\BaseController
         if (!$this->commonLib->isMobileNum($params['cus_mobile'])) {
             return redirect()->to('/Kcar/Kw');
         }
-        
+
         // Get customer info
         $res = $this->_Kw_model->getCustomerInfo($params['cus_name'], $params['cus_mobile']);
         if (!$res['result']) {
-            return redirect()->to('/Kcar/Kw');
+            // return redirect()->to('/Kcar/Kw');
+            $this->commonLib->jsAlertRedirect('페이지에 오류가 발생했습니다. (1)', '/Kcar/Kw');
         }
 
         if (empty($res['row']['type'])) {
@@ -61,7 +62,8 @@ class Kw extends \App\Controllers\Kcar\BaseController
             // Get selectable product list
             $res_product = $this->_Kw_model->getKwProductInfo($res['row']['kw_code'], $res['row']['bnft_price']);
             if (!$res_product['result']) {
-                return redirect()->to('/Kcar/Kw');
+                // return redirect()->to('/Kcar/Kw');
+                $this->commonLib->jsAlertRedirect('페이지에 오류가 발생했습니다. (2)', '/Kcar/Kw');
             }
 
             // Set view data

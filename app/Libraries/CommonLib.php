@@ -117,7 +117,7 @@ class CommonLib
      * @param boolean $no_dash
      * @return boolean
      */
-     public function isMobileNum(string $input, bool $no_dash = true): bool
+    public function isMobileNum(string $input, bool $no_dash = true): bool
     {
         $regexp_dash = '/^01\d-\d{3,4}-\d{4}$/';
         $regexp_no_dash = '/^01\d{8,9}$/';
@@ -130,17 +130,74 @@ class CommonLib
 
 
 
+    /**
+     * Add javascript to response view
+     *
+     * @param string $javascript
+     * @param boolean $rendering_view
+     * @return void
+     */
+    public function addJavascript(string $javascript, bool $rendering_view = true): void
+    {
+        $script = '<script type="text/javascript" charset="UTF-8">';
+        $script .= $javascript;
+        $script .= '</script>';
 
+        echo $script;
+
+        if (!$rendering_view) {
+            exit();
+        }
+    }
+
+    /**
+     * Add javascript alert to response view
+     *
+     * @param string $message
+     * @param boolean $rendering_view
+     * @return void
+     */
+    public function jsAlert(string $message, bool $rendering_view = true): void
+    {
+        $this->addJavascript("alert('{$message}');", $rendering_view);
+    }
+
+    /**
+     * Javascrpt alert and history back
+     *
+     * @param string $message
+     * @return void
+     */
+    public function jsAlertBack(string $message): void
+    {
+        $this->addJavascript("alert('{$message}');history.back();", false);
+    }
+
+    /**
+     * Javascript alert and location replace
+     *
+     * @param string $message
+     * @param string $redirect_url
+     * @return void
+     */
+    public function jsAlertRedirect(string $message, string $redirect_url): void
+    {
+        $this->addJavascript("alert('{$message}');location.replace('{$redirect_url}');", false);
+    }
 
 
     /**
      * 메시지 발송
-     * @param  [type] $to      [description]
-     * @param  [type] $title   [description]
-     * @param  [type] $content [description]
-     * @return [type]          [description]
+     *
+     * @param [type] $message_type
+     * @param [type] $from
+     * @param [type] $to
+     * @param [type] $title
+     * @param [type] $content
+     * @param [type] $content_type
+     * @return array
      */
-    private function sendMessage($message_type, $from, $to, $title, $content, $content_type)
+    private function sendMessage($message_type, $from, $to, $title, $content, $content_type): array
     {
         // 결과 배열 생성
         $rtn = array('result' => true, 'message' => '');
@@ -192,12 +249,13 @@ class CommonLib
 
     /**
      * 이메일 발송
-     * @param  [type] $to      [description]
-     * @param  [type] $title   [description]
-     * @param  [type] $content [description]
-     * @return [type]          [description]
+     *
+     * @param [type] $to
+     * @param [type] $title
+     * @param [type] $content
+     * @return array
      */
-    public function sendEmail($to, $title, $content)
+    public function sendEmail($to, $title, $content): array
     {
         // 메시지 발송
         $rtn = $this->sendMessage(
@@ -209,12 +267,13 @@ class CommonLib
 
     /**
      * LMS 전송
-     * @param  [type] $to      [description]
-     * @param  [type] $title   [description]
-     * @param  [type] $content [description]
-     * @return [type]          [description]
+     *
+     * @param [type] $to
+     * @param [type] $title
+     * @param [type] $content
+     * @return array
      */
-    public function sendLms($to, $title, $content)
+    public function sendLms($to, $title, $content): array
     {
         // 입력값 보정
         $to = str_replace('-', '', $to);
