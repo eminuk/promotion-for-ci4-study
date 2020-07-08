@@ -31,10 +31,10 @@ class Database extends \CodeIgniter\Database\Config
 	 */
 	public $default = [
 		'DSN'      => '',
-		'hostname' => 'localhost',
-		'username' => '',
-		'password' => '',
-		'database' => '',
+		'hostname' => '127.0.0.1',
+		'username' => 'autocarz',
+		'password' => 'autocarz1234',
+		'database' => 'autocarz_kcar',
 		'DBDriver' => 'MySQLi',
 		'DBPrefix' => '',
 		'pConnect' => false,
@@ -50,6 +50,29 @@ class Database extends \CodeIgniter\Database\Config
 		'failover' => [],
 		'port'     => 3306,
 	];
+
+	public $prd = [
+		'DSN'      => '',
+		'hostname' => '127.0.0.1',
+		'username' => 'autocarz',
+		'password' => 'autocarz1234',
+		'database' => 'autocarz_kcar',
+		'DBDriver' => 'MySQLi',
+		'DBPrefix' => '',
+		'pConnect' => false,
+		'DBDebug'  => (ENVIRONMENT !== 'production'),
+		'cacheOn'  => false,
+		'cacheDir' => '',
+		'charset'  => 'utf8',
+		'DBCollat' => 'utf8_general_ci',
+		'swapPre'  => '',
+		'encrypt'  => false,
+		'compress' => false,
+		'strictOn' => false,
+		'failover' => [],
+		'port'     => 3306,
+	];
+
 
 	/**
 	 * This database connection is used when
@@ -106,6 +129,11 @@ class Database extends \CodeIgniter\Database\Config
 					}
 				}
 			}
+		}
+
+		// Addtionnal config
+		if (strtolower(getenv('APP_ENV')) === 'prd') {
+			$this->defaultGroup = 'prd';
 		}
 	}
 

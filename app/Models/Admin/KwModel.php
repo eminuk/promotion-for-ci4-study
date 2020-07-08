@@ -33,6 +33,15 @@ class KwModel extends Model
 
 
     /**
+     * Construct
+     */
+    public function __construct()
+    {
+        // parent's construct
+        parent::__construct();
+    }
+
+    /**
      * Get Kw promotion list
      *
      * @param array $params
