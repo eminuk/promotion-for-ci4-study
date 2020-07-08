@@ -211,3 +211,5 @@ cp env .env
 - 이외 다른 값은 default로 정의한 DB에 연결
     - __.env__ 파일에 default DB 정의 필요
 
+### app.baseURL
+- app.baseURL 값 설정
