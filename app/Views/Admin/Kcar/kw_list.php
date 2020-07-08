@@ -376,8 +376,8 @@
                     return;
                 }
 
-                // alert(data.data.affected_row + '건이 삭제 되었습니다.');
-                alert('삭제되었습니다.');
+                alert(data.data.affected_row + '건이 삭제 되었습니다.');
+                // alert('삭제되었습니다.');
 
                 // Reload list
                 doSearch($('input[name=page_num]').val());
@@ -422,13 +422,11 @@
                     return;
                 }
 
-                console.log(data); return;
-
-                // alert(data.data.affected_row + '건이 삭제 되었습니다.');
-                alert('등록되었습니다.');
+                alert(data.data.affected_row + '건이 등록 되었습니다.');
 
                 // Reload list
                 doSearch(1);
+                excelUploadUi();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR, textStatus, errorThrown);
