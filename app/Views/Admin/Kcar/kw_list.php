@@ -323,9 +323,12 @@
 
     // ajax sms 발송요청
     function sendSms(id) {
+        if (!confirm('SMS를 발송하겠습니까?')) {
+            return false;
+        }
         $.ajax({
             url: '/api/admin/Kcar/sms/',
-            type: 'GET',
+            type: 'POST',
             dataType: 'json',
             data: { kw_id: id },
             timeout: 30000,
