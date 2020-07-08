@@ -101,6 +101,9 @@
                 $('[show-group~="type_1"]').show();
             } else {
                 $('[show-group~="type_1"]').hide();
+                $('input[name=hope_1]').val('');
+                $('input[name=hope_2]').val('');
+                $('input[name=hope_3]').val('');
             }
         });
 

@@ -157,6 +157,55 @@ class Kcar extends \App\Controllers\API\BaseController
         return $this->respond($rtn, 200, '');
     }
 
+    /**
+     * Get KW select info API
+     *
+     * @param string $kw_code
+     * @param string $bnft_price
+     * @return void
+     */
+    public function SelectInfo(string $kw_id)
+    {
+        // Validate allowed method
+        $this->validateAllowedMethod([ 'GET' ]);
+
+        // Validate parameter
+        $this->validateVariable($kw_id, 'required|is_natural_no_zero');
+
+        // Set default response data
+        $rtn = [
+            'result' => true,
+            'message' => '',
+            'data' => [
+                'bnft_code' => '',
+                'product_type' => '',
+                'product_type_kr' => '',
+                'product_items' => '',
+                'hope_1' => '',
+                'hope_2' => '',
+                'hope_3' => ''
+            ]
+        ];
+
+        // Get KW product info
+        $res = $this->_Kw_model->getKwSelectInfo($kw_id);
+        if ($res['result']) {
+            $item = $res['row'];
+            $rtn['data']['bnft_code'] = $item['bnft_code'];
+            $rtn['data']['product_type'] = $item['type'];
+            $rtn['data']['product_type_kr'] = $item['type_kr'];
+            $rtn['data']['product_items'] = $item['items'];
+            $rtn['data']['hope_1'] = $item['hope_1'];
+            $rtn['data']['hope_2'] = $item['hope_2'];
+            $rtn['data']['hope_3'] = $item['hope_3'];
+        } else {
+            $rtn['result'] = false;
+            $rtn['message'] = $res['message'];
+        }
+
+        return $this->respond($rtn, 200, '');
+    }
+
     public function kw()
     {
         switch ($this->request->getMethod(TRUE)) {

@@ -177,46 +177,59 @@
                 }
 
                 $.each(data.data.list, function (index, item) {
-                    $('#list_body').append($('<tr/>')
-                        .append($('<td/>')
-                            .append($('<input/>', { 
-                                type: 'checkbox',
-                                name: 'kw_ids[]', 
-                                value: item.id 
-                            }))
-                        )
-                        .append($('<td/>', { text: item.id }))
-                        .append($('<td/>', { text: item.kw_code }))
-                        .append($('<td/>', { text: item.car_model }))
-                        .append($('<td/>', { text: item.car_number }))
-                        .append($('<td/>', { text: item.cus_name }))
-                        .append($('<td/>', { text: item.cus_mobile }))
-                        .append($('<td/>', { text: item.bnft_price }))
-                        .append($('<td/>')
+                    let tr_elem = $('<tr/>');
+                    tr_elem.append($('<td/>')
+                        .append($('<input/>', { 
+                            type: 'checkbox',
+                            name: 'kw_ids[]', 
+                            value: item.id 
+                        }))
+                    );
+                    tr_elem.append($('<td/>', { text: item.id }));
+                    tr_elem.append($('<td/>', { text: item.kw_code }));
+                    tr_elem.append($('<td/>', { text: item.car_model }));
+                    tr_elem.append($('<td/>', { text: item.car_number }));
+                    tr_elem.append($('<td/>', { text: item.cus_name }));
+                    tr_elem.append($('<td/>', { text: item.cus_mobile }));
+                    tr_elem.append($('<td/>', { text: item.bnft_price }));
+                    tr_elem.append($('<td/>')
+                        .append($('<button/>', {
+                            type: 'button',
+                            text: item.bnft_code,
+                            click: function () {
+                                getProductInfo(item.kw_code, item.bnft_price);
+                            }
+                        }))
+                    );
+                    tr_elem.append($('<td/>', { text: item.is_select_kr }));
+                    tr_elem.append($('<td/>', { text: item.select_at }));
+                    tr_elem.append($('<td/>', { text: item.cus_zip }));
+                    tr_elem.append($('<td/>', { text: item.cus_addr1 }));
+                    tr_elem.append($('<td/>', { text: item.cus_addr2 }));
+                    if (item.type) {
+                        // tr_elem.append($('<td/>', { text: item.type_kr }));
+
+                        tr_elem.append($('<td/>')
                             .append($('<button/>', {
                                 type: 'button',
-                                text: item.bnft_code,
+                                text: item.type_kr,
                                 click: function () {
-                                    getProductInfo(item.kw_code, item.bnft_price);
+                                    getSeleetInfo(item.id);
                                 }
                             }))
-                        )
-                        .append($('<td/>', { text: item.is_select_kr }))
-                        .append($('<td/>', { text: item.select_at }))
-                        .append($('<td/>', { text: item.cus_zip }))
-                        .append($('<td/>', { text: item.cus_addr1 }))
-                        .append($('<td/>', { text: item.cus_addr2 }))
-                        .append($('<td/>', { text: item.type_kr }))
-                        .append($('<td/>', { text: item.send_sms_kr }))
-                        .append($('<td/>')
-                            .append($('<button/>', {
-                                type: 'button',
-                                text: '발송',
-                                click: function () {
-                                    sendSms(item.id);
-                                }
-                            }))
-                        )
+                        );
+                    } else {
+                        tr_elem.append($('<td/>', { text: '-' }));
+                    }
+                    tr_elem.append($('<td/>', { text: item.send_sms_kr }));
+                    tr_elem.append($('<td/>')
+                        .append($('<button/>', {
+                            type: 'button',
+                            text: '발송',
+                            click: function () {
+                                sendSms(item.id);
+                            }
+                        }))
                     );
                 });
 
@@ -254,6 +267,45 @@
                 msg += '세자상품: ' + data.data.wash_service + '\n\r';
                 msg += '세차용품: ' + data.data.wash_goods + '\n\r';
                 msg += '차량용품: ' + data.data.car_goods + '\n\r';
+
+                alert(msg);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR, textStatus, errorThrown);
+                alert("Ajax error has occurred. \n" + errorThrown);
+                return false;
+            },
+            complete: function (jqXHR, textStatus, form) {}
+        });
+        return false;
+    }
+
+    // ajax 신청상품정보
+    function getSeleetInfo(id) {
+        $.ajax({
+            url: '/api/admin/Kcar/selectInfo/' + id,
+            type: 'GET',
+            dataType: 'json',
+            data: {},
+            timeout: 30000,
+            beforeSubmit: function (arr, form, options) {},
+            beforeSend: function (jqXHR, settings) {},
+            uploadProgress: function (event, position, total, percentComplete) {},
+            success: function (data, textStatus, jqXHR) {
+                if (!data.result) {
+                    alert(data.message);
+                    return;
+                }
+
+                let item = data.data;
+                let msg = '상품구성 상세정보\n\r\n\r';
+                msg += '상품코드: ' + item.bnft_code + '\n\r';
+                msg += item.product_type_kr + ': ' + item.product_items + '\n\r';
+                if (item.product_type == 1) {
+                    msg += '희망일자(1): ' + item.hope_1 + '\n\r';
+                    msg += '희망일자(2): ' + item.hope_2 + '\n\r';
+                    msg += '희망일자(3): ' + item.hope_3 + '\n\r';
+                }
 
                 alert(msg);
             },

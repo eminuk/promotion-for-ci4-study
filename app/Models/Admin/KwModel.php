@@ -311,6 +311,56 @@ class KwModel extends Model
 
 
     /**
+     * Get KW select info
+     *
+     * @param string $kw_id
+     * @return array
+     */
+    public function getKwSelectInfo(int $kw_id): array
+    {
+        // Default return variable
+        $rtn = array('result' => false, 'message' => '', 'row' => [], 'total_rows' => 0);
+
+
+        // Get list
+        $sql_params = [
+            'kw_id' => $kw_id
+        ];
+
+        $sql = "
+            SELECT 
+                kc.bnft_code, IFNULL(kc.hope_1, '') AS hope_1, IFNULL(kc.hope_2, '') AS hope_2, IFNULL(kc.hope_3, '') AS hope_3, 
+                kp.type, kp.items, 
+                CASE kp.type 
+                    WHEN 1 THEN '출장세차' 
+                    WHEN 2 THEN '세차용품' 
+                    WHEN 3 THEN '자동차용품' 
+                    ELSE '-' 
+                END AS type_kr 
+            FROM kcar_kw_customer AS kc 
+                JOIN kcar_kw_product AS kp ON kc.product_id = kp.id 
+            WHERE kc.kw_id = :kw_id: 
+            ;
+        ";
+        $query = $this->query($sql, $sql_params);
+
+        $rtn['row'] = $query->getRowArray();
+        $error = $this->error();
+        if ($error['code'] !== 0) {
+            $rtn['result'] = false;
+            $rtn['message'] = $error['message'];
+            return $rtn;
+        }
+        $query->freeResult();
+
+
+        $rtn['result'] = true;
+
+        return $rtn;
+    }
+
+
+    /**
      * Get KW product info
      *
      * @param string $kw_code
@@ -371,6 +421,17 @@ class KwModel extends Model
         // Set product select
         $sql_params = $params;
 
+        $sql_set = '';
+        if (!empty($params['hope_1'])) {
+            $sql_set .= "kc.hope_1 = :hope_1:, ";
+        }
+        if (!empty($params['hope_2'])) {
+            $sql_set .= "kc.hope_2 = :hope_2:, ";
+        }
+        if (!empty($params['hope_3'])) {
+            $sql_set .= "kc.hope_3 = :hope_3:, ";
+        }
+
         $sql = "
             UPDATE kcar_kw_customer AS kc 
                 JOIN (
@@ -387,9 +448,7 @@ class KwModel extends Model
             SET kc.cus_zip = :cus_zip:, 
                 kc.cus_addr1 = :cus_addr1:, 
                 kc.cus_addr2 = :cus_addr2:, 
-                kc.hope_1 = :hope_1:, 
-                kc.hope_2 = :hope_2:, 
-                kc.hope_3 = :hope_3:, 
+                {$sql_set}
                 kc.product_id = s.product_id, 
                 kc.select_at = NOW() 
             WHERE kc.product_id IS NULL 
@@ -624,7 +683,7 @@ class KwModel extends Model
         $sql = "
             SELECT 
                 k.kw_code, k.bnft_price, 
-                kc.cus_zip, kc.cus_addr1, kc.cus_addr2, 
+                kc.cus_zip, kc.cus_addr1, kc.cus_addr2, kc.hope_1, kc.hope_2, kc.hope_3, 
                 kp.type, kp.img, kp.items, 
                 CASE kp.type 
                     WHEN 1 THEN '출장세차' 
