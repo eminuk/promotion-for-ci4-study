@@ -191,7 +191,9 @@
                     tr_elem.append($('<td/>', { text: item.car_number }));
                     tr_elem.append($('<td/>', { text: item.cus_name }));
                     tr_elem.append($('<td/>', { text: item.cus_mobile }));
-                    tr_elem.append($('<td/>', { text: item.bnft_price }));
+                    tr_elem.append($('<td/>', {
+                        text: item.bnft_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    }));
                     tr_elem.append($('<td/>')
                         .append($('<button/>', {
                             type: 'button',
