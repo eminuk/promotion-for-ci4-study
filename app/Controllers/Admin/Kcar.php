@@ -163,7 +163,7 @@ class Kcar extends \App\Controllers\Admin\BaseController
                 $item['id'], $item['kw_code'], $item['car_model'], $item['car_number'], 
                 $item['cus_name'], $item['cus_mobile'], $item['bnft_price'], 
                 $item['bnft_code'], $item['is_select_kr'], $item['select_at'], 
-                $item['cus_zip'], $item['cus_addr1'], $item['cus_addr2'], $item['items'],
+                $item['cus_zip'], $item['cus_addr1'], $item['cus_addr2'], $item['type_kr'],
                 $item['send_sms_kr']
             ];
 

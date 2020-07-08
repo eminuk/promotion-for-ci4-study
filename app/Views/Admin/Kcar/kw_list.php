@@ -442,14 +442,14 @@
 
     // Download excel
     function downloadExcel () {
-        if ($('input[name=sdate]').val() == '') {
-            alert('날짜를 선택해 주세요.');
-            return;
-        }
-        if ($('input[name=edate]').val() == '') {
-            alert('날짜를 선택해 주세요.');
-            return;
-        }
+        // if ($('input[name=sdate]').val() == '') {
+        //     alert('날짜를 선택해 주세요.');
+        //     return;
+        // }
+        // if ($('input[name=edate]').val() == '') {
+        //     alert('날짜를 선택해 주세요.');
+        //     return;
+        // }
         location.href = '/admin/kcar/kwListExcel?' + $('form[name=form_search]').serialize();
     }
 
