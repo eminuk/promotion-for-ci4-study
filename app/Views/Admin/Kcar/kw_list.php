@@ -264,11 +264,11 @@
                     return;
                 }
 
-                let msg = '상품구성 상세정보\n\r\n\r';
-                msg += '상품코드: ' + data.data.bnft_code + '\n\r';
-                msg += '세자상품: ' + data.data.wash_service + '\n\r';
-                msg += '세차용품: ' + data.data.wash_goods + '\n\r';
-                msg += '차량용품: ' + data.data.car_goods + '\n\r';
+                let msg = '상품구성 상세정보\n\n';
+                msg += '상품코드: ' + data.data.bnft_code + '\n';
+                msg += '세자상품: ' + data.data.wash_service.replace(/\n/g, ', ') + '\n';
+                msg += '세차용품: ' + data.data.wash_goods.replace(/\n/g, ', ') + '\n';
+                msg += '차량용품: ' + data.data.car_goods.replace(/\n/g, ', ') + '\n';
 
                 alert(msg);
             },
@@ -300,13 +300,13 @@
                 }
 
                 let item = data.data;
-                let msg = '상품구성 상세정보\n\r\n\r';
-                msg += '상품코드: ' + item.bnft_code + '\n\r';
-                msg += item.product_type_kr + ': ' + item.product_items + '\n\r';
+                let msg = '상품구성 상세정보\n\n';
+                msg += '상품코드: ' + item.bnft_code + '\n';
+                msg += item.product_type_kr + ': ' + item.product_items.replace(/\n/g, ', ') + '\n';
                 if (item.product_type == 1) {
-                    msg += '희망일자(1): ' + item.hope_1 + '\n\r';
-                    msg += '희망일자(2): ' + item.hope_2 + '\n\r';
-                    msg += '희망일자(3): ' + item.hope_3 + '\n\r';
+                    msg += '희망일자(1): ' + item.hope_1 + '\n';
+                    msg += '희망일자(2): ' + item.hope_2 + '\n';
+                    msg += '희망일자(3): ' + item.hope_3 + '\n';
                 }
 
                 alert(msg);
