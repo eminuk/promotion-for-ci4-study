@@ -1,18 +1,18 @@
-<?php namespace App\Controllers\API\Kcar;
+<?php namespace App\Controllers\Api\Front;
 
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
 /**
- * Kcar Kw 관련 API 컨트롤러
+ * Promotion 관련 API 컨트롤러
  */
-class Kw extends \App\Controllers\API\BaseController
+class Prom extends \App\Controllers\Api\BaseController
 {
     /**
-     * Kw model
+     * Prom model
      *
      * @var [type]
      */
-    private $_Kw_model;
+    private $prom_model;
 
     /**
      * Construct
@@ -23,7 +23,7 @@ class Kw extends \App\Controllers\API\BaseController
         $this->base_controller_cfg['auto_login_check'] = false;
 
         // Load models
-        $this->_Kw_model = new \App\Models\Admin\KwModel();
+        $this->prom_model = new \App\Models\PromModel();
     }
 
 
@@ -66,7 +66,7 @@ class Kw extends \App\Controllers\API\BaseController
         ];
 
         // Get customer info
-        $res = $this->_Kw_model->getCustomerInfo($params['cus_name'], $params['cus_mobile']);
+        $res = $this->prom_model->getCustomerInfo($params['cus_name'], $params['cus_mobile']);
         if ($res['result']) {
             $rtn['data']['is_customer'] = !empty($res['row']);
         } else {
@@ -97,7 +97,8 @@ class Kw extends \App\Controllers\API\BaseController
             'cus_addr2' => $this->commonLib->readRawInput('cus_addr2'),
             'hope_1' => $this->commonLib->readRawInput('hope_1'),
             'hope_2' => $this->commonLib->readRawInput('hope_2'),
-            'hope_3' => $this->commonLib->readRawInput('hope_3')
+            'hope_3' => $this->commonLib->readRawInput('hope_3'),
+            'first_only' => $this->commonLib->readRawInput('first_only', 'Y'),
         ];
 
         // Validate parameter
@@ -126,6 +127,11 @@ class Kw extends \App\Controllers\API\BaseController
                 'cus_addr1' => 'The cus_addr1 is must required.'
             ]);
         }
+        if (!$this->validateCheck($params['first_only'], 'in_list[,Y,N]')) {
+            $this->responseParameterValidateFail([
+                'first_only' => 'The first_only is in_list[,Y,N]'
+            ]);
+        }
 
         // Additional validate parameter
         if ($params['type'] == '1') {
@@ -146,6 +152,7 @@ class Kw extends \App\Controllers\API\BaseController
             }
         }
 
+
         // Set default response data
         $rtn = [
             'result' => true,
@@ -156,7 +163,7 @@ class Kw extends \App\Controllers\API\BaseController
         ];
 
         // Set product setect
-        $res = $this->_Kw_model->setKwProductSelect($params);
+        $res = $this->prom_model->setKwProductSelect($params, in_array($params['first_only'], ['Y', 'y']));
         if ($res['result']) {
             $rtn['data']['affected_row'] = $res['affected_row'];
         } else {

@@ -25,11 +25,11 @@
 
     <form name="form_login" method="post" action="" accept-charset="utf-8">
         <?= csrf_field() ?>
-        <input type="email" name="email" placeholder="이메일주소" value="<?=esc('admin@autocarz.co.kr')?>" />
+        <input type="email" name="email" placeholder="이메일주소" value="<?=esc($view['remember'] ?? 'promotion@project.co.kr')?>" required />
         <br />
-        <input type="password" name="password" placeholder="패스워드" value="autocarz1234" />
+        <input type="password" name="password" placeholder="패스워드" value="promotion1234" required />
         <br />
-        <label><input type="checkbox" name="keep_login" value='Y' checked />로그인 상태 유지</label>
+        <label><input type="checkbox" name="remember" value='Y' checked />Remember Me</label>
         <br />
         <button type="button" onclick="return doLogin();">SIGN IN</button>
     </form>
@@ -44,8 +44,30 @@
 <script type="text/javascript">
 
 function doLogin () {
+    let email_obj = $('form[name=form_login] input[name=email]');
+    let pword_obj = $('form[name=form_login] input[name=password]');
+
+    // 아이디를 입력하지 않았을 경우
+    if (email_obj.val() == '') {
+        alert('아이디를 입력해주세요.');
+        email_obj.focus();
+        return false;
+    }
+    // 입력 형식이 맞지 않는 경우
+    if (!/^([0-9a-zA-Z_\.-]+)@([0-9a-zA-Z_-]+)(\.[0-9a-zA-Z_-]+){1,2}$/i.test(email_obj.val())) {
+        alert('이메일 형식이 잘못되었습니다.');
+        email_obj.focus();
+        return false;
+    }
+    // 비밀번호를 입력하지 않은 경우
+    if (email_obj.val() == '') {
+        alert('비밀번호를 입력해주세요.');
+        email_obj.focus();
+        return false;
+    }
+
     $.ajax({
-        url: '/api/admin/Manager/login',
+        url: '/api/admin/manager/login',
         type: 'POST',
         dataType: 'json',
         data: $('form[name=form_login]').serialize(),

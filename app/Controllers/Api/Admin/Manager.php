@@ -1,10 +1,10 @@
-<?php namespace App\Controllers\API\Admin;
+<?php namespace App\Controllers\Api\Admin;
 
 
 /**
  * 사용자(관리자) 관련 API 컨트롤러
  */
-class Manager extends \App\Controllers\API\BaseController
+class Manager extends \App\Controllers\Api\BaseController
 {
     /**
      * Manager model
@@ -22,7 +22,7 @@ class Manager extends \App\Controllers\API\BaseController
         $this->base_controller_cfg['auto_login_check'] = false;
 
         // Load models
-        $this->_manager_model = new \App\Models\Admin\ManagerModel();
+        $this->_manager_model = new \App\Models\ManagerModel();
     }
 
     /**
@@ -48,7 +48,22 @@ class Manager extends \App\Controllers\API\BaseController
         $params = [
             'email' => $this->commonLib->readPostGet('email'),
             'password' => $this->commonLib->readPostGet('password'),
+            'remember' => $this->commonLib->readPostGet('remember'),
         ];
+
+        // Set remember
+        if ($params['remember'] == 'Y') {
+            // Set cookie
+            $this->response->setCookie([
+                'name'   => 'admin_remember',
+                'value'  => $params['email'],
+                'expire' => '1209600',
+                'path'   => '/admin',
+            ]);
+        } else {
+            // Delete cookie
+            $this->response->deleteCookie('admin_remember', '', '/admin');
+        }
 
         // Set default response data
         $rtn = [
@@ -73,7 +88,7 @@ class Manager extends \App\Controllers\API\BaseController
                 'result' => true,
                 'message' => '',
                 'data' => [
-                    'redirect_url' => '/admin/kcar/kwList'
+                    'redirect_url' => '/admin/prom/list'
                 ]
             ];
 

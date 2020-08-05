@@ -57,7 +57,7 @@
     <br />
 
     <div show-group="type_1">
-        <p>출장세차 서비스 희망 일정(3회)을 입력해주세요.</p>
+        <p>수령 희망 일정(3회)을 입력해주세요.</p>
         희망일자 (1)<input type="date" name="hope_1" placeholder="날짜를 선택해주세요." value="" />
         <br />
         희망일자 (2)<input type="date" name="hope_2" placeholder="날짜를 선택해주세요." value="" />

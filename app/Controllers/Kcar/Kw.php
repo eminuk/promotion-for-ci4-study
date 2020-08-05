@@ -6,11 +6,11 @@
 class Kw extends \App\Controllers\Kcar\BaseController
 {
     /**
-     * Kw model
+     * Prom model
      *
      * @var [type]
      */
-    private $_Kw_model;
+    private $prom_model;
 
     /**
      * Construct
@@ -18,7 +18,7 @@ class Kw extends \App\Controllers\Kcar\BaseController
     public function __construct()
     {
         // Load models
-        $this->_Kw_model = new \App\Models\Admin\KwModel();
+        $this->prom_model = new \App\Models\PromModel();
     }
 
 
@@ -42,15 +42,18 @@ class Kw extends \App\Controllers\Kcar\BaseController
         ];
 
         // Validate parameter
+        $validate_alert = '이름, 휴대폰번호를 다시 입력해주세요.\n(문의 02-555-0206 오토카지 고객센터)';
         if (empty($params['cus_name'])) {
-            return redirect()->to('/Kcar/Kw');
+            // return redirect()->to('/Kcar/Kw');
+            $this->commonLib->jsAlertRedirect($validate_alert, '/Kcar/Kw');
         }
         if (!$this->commonLib->isMobileNum($params['cus_mobile'])) {
-            return redirect()->to('/Kcar/Kw');
+            // return redirect()->to('/Kcar/Kw');
+            $this->commonLib->jsAlertRedirect($validate_alert, '/Kcar/Kw');
         }
 
         // Get customer info
-        $res = $this->_Kw_model->getCustomerInfo($params['cus_name'], $params['cus_mobile']);
+        $res = $this->prom_model->getCustomerInfo($params['cus_name'], $params['cus_mobile']);
         if (!$res['result']) {
             // return redirect()->to('/Kcar/Kw');
             $this->commonLib->jsAlertRedirect('페이지에 오류가 발생했습니다. (1)', '/Kcar/Kw');
@@ -60,7 +63,7 @@ class Kw extends \App\Controllers\Kcar\BaseController
             // 상품 선택화면
 
             // Get selectable product list
-            $res_product = $this->_Kw_model->getKwProductInfo($res['row']['kw_code'], $res['row']['bnft_price']);
+            $res_product = $this->prom_model->getKwProductInfo($res['row']['pm_id']);
             if (!$res_product['result']) {
                 // return redirect()->to('/Kcar/Kw');
                 $this->commonLib->jsAlertRedirect('페이지에 오류가 발생했습니다. (2)', '/Kcar/Kw');
@@ -69,7 +72,10 @@ class Kw extends \App\Controllers\Kcar\BaseController
             // Set view data
             $this->view_data['view'] = [
                 'cus_name' => $params['cus_name'],
-                'cus_mobile' => $params['cus_mobile']
+                'cus_mobile' => $params['cus_mobile'],
+                // 'cus_zip' => '',
+                // 'cus_addr1' => '',
+                // 'cus_addr2' => '',
             ];
 
             foreach ($res_product['list'] as $item) {
@@ -86,6 +92,9 @@ class Kw extends \App\Controllers\Kcar\BaseController
                     default:
                         break;
                 }
+            // $this->view_data['view']['cus_zip'] = $item['cus_zip'];
+            // $this->view_data['view']['cus_addr1'] = $item['cus_addr1'];
+            // $this->view_data['view']['cus_addr2'] = $item['cus_addr2'];
             }
 
             return view('Kcar/kw_cus_product', $this->view_data);

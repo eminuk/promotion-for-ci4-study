@@ -1,4 +1,4 @@
-<?php namespace App\Entities\Admin;
+<?php namespace App\Entities;
 
 use CodeIgniter\Entity;
 

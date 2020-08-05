@@ -1,8 +1,8 @@
-<?php namespace App\Entities\Admin;
+<?php namespace App\Entities;
 
 use CodeIgniter\Entity;
 
-class Kw extends Entity
+class Prom extends Entity
 {
     /**
      * commonLib Library
