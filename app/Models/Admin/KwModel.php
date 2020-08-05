@@ -165,7 +165,7 @@ class KwModel extends Model
                     WHEN 3 THEN '자동차용품' 
                     ELSE '-' 
                 END AS type_kr 
-            FROM kcar_kw AS k 
+            FROM promotion AS k 
                 JOIN kcar_kw_customer AS kc ON k.id = kc.kw_id 
                 LEFT JOIN kcar_kw_product AS kp ON kc.product_id = kp.id 
             WHERE k.status = 1 
@@ -228,7 +228,7 @@ class KwModel extends Model
                     ELSE '-' 
                 END AS send_sms_kr, 
                 kp.type, kp.items, kp.img 
-            FROM kcar_kw AS k 
+            FROM promotion AS k 
                 JOIN kcar_kw_customer AS kc ON k.id = kc.kw_id 
                 LEFT JOIN kcar_kw_product AS kp ON kc.product_id = kp.id 
             WHERE k.status = 1 AND k.id = :kw_id:
@@ -270,7 +270,7 @@ class KwModel extends Model
         ];
 
         $sql = "
-            UPDATE kcar_kw AS k 
+            UPDATE promotion AS k 
             SET k.status = 2 
             WHERE k.id IN :kw_ids: AND k.status = 1 
             ;
@@ -302,7 +302,7 @@ class KwModel extends Model
         $rtn = array('result' => false, 'message' => '', 'affected_row' => 0);
 
         // Create builder
-        $builder = $this->db->table('kcar_kw');
+        $builder = $this->db->table('promotion');
 
         $query = $builder->ignore(true)->insertBatch($kw_data);
         $error = $this->error();
@@ -445,7 +445,7 @@ class KwModel extends Model
             UPDATE kcar_kw_customer AS kc 
                 JOIN (
                     SELECT k.id, kp.id AS product_id 
-                    FROM kcar_kw AS k 
+                    FROM promotion AS k 
                         LEFT JOIN kcar_kw_product AS kp ON k.kw_code = kp.kw_code 
                             AND k.bnft_price = kp.bnft_price 
                             AND kp.status = 1 
@@ -499,7 +499,7 @@ class KwModel extends Model
         $sql = "
             INSERT IGNORE INTO kcar_kw_customer(kw_id, bnft_code) 
             SELECT k.id AS kw_id, kb.bnft_code 
-            FROM kcar_kw AS k 
+            FROM promotion AS k 
                 JOIN kcar_kw_benefit AS kb ON k.bnft_price = kb.bnft_price 
             WHERE k.status = 0 
             ORDER BY k.id ASC 
@@ -522,7 +522,7 @@ class KwModel extends Model
 
         // Set kw state
         $sql = "
-            UPDATE kcar_kw AS k 
+            UPDATE promotion AS k 
                 JOIN kcar_kw_customer AS kc ON k.id = kc.kw_id 
             SET k.status = 1 
             WHERE k.status = 0 
@@ -568,7 +568,7 @@ class KwModel extends Model
                 k.cus_name, k.cus_mobile, 
                 kc.id AS customer_id 
             FROM kcar_kw_customer AS kc 
-                JOIN kcar_kw AS k ON kc.kw_id = k.id 
+                JOIN promotion AS k ON kc.kw_id = k.id 
             WHERE kc.send_sms = 0 
             LIMIT 100 
             ;
@@ -700,7 +700,7 @@ class KwModel extends Model
                     WHEN 3 THEN '자동차용품' 
                     ELSE '-' 
                 END AS type_kr 
-            FROM kcar_kw AS k 
+            FROM promotion AS k 
                 LEFT JOIN kcar_kw_customer AS kc ON k.id = kc.kw_id 
                 LEFT JOIN kcar_kw_product AS kp ON kc.product_id = kp.id AND kp.status = 1
             WHERE k.cus_name = :cus_name: AND k.cus_mobile = :cus_mobile: AND k.status = 1 

@@ -188,8 +188,8 @@ class Kcar extends \App\Controllers\Admin\BaseController
     public function kwExcelSample()
     {
         // Set file name
-        $file_name = FCPATH.'asset/sample/kcar_kw_sample__20200703000000.xlsx';
-        $download_name = 'kcar_kw_sample.xlsx';
+        $file_name = FCPATH.'asset/sample/sample__20200703000000.xlsx';
+        $download_name = 'sample.xlsx';
         
         return $this->response->download($file_name, null)
             ->setFileName($download_name);
