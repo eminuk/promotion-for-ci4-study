@@ -235,12 +235,12 @@ class PromModel extends Model
     }
 
     /**
-     * Delete Kw promotion data
+     * Delete promotion data
      *
      * @param array $pm_ids
      * @return array
      */
-    public function deleteKw(array $pm_ids = []): array
+    public function deleteData(array $pm_ids = []): array
     {
         // Default return variable
         $rtn = array('result' => false, 'message' => '', 'affected_row' => 0);
@@ -256,7 +256,7 @@ class PromModel extends Model
         $this->db->transBegin();
 
 
-        // Delete kw date
+        // Delete promotion data
         $sql = "
             DELETE FROM promotion 
             WHERE id IN :pm_ids: 
@@ -277,7 +277,7 @@ class PromModel extends Model
         $rtn['affected_row'] = $this->db->affectedRows();
 
 
-        // Delete kw customer date
+        // Delete customer date
         $sql = "
             DELETE FROM promotion_customer 
             WHERE pm_id IN :pm_ids: 
@@ -310,12 +310,12 @@ class PromModel extends Model
     }
 
     /**
-     * Insert Kw promotion data
+     * Insert promotion data
      *
-     * @param array $kw_data
+     * @param array $data
      * @return array
      */
-    public function insertKwBulk(array $kw_data = []): array
+    public function insertDataBulk(array $data = []): array
     {
         // Default return variable
         $rtn = array('result' => false, 'message' => '', 'affected_row' => 0);
@@ -323,7 +323,7 @@ class PromModel extends Model
         // Create builder
         $builder = $this->db->table('promotion');
 
-        $query = $builder->ignore(true)->insertBatch($kw_data);
+        $query = $builder->ignore(true)->insertBatch($data);
         $error = $this->error();
         if ($error['code'] !== 0) {
             $rtn['result'] = false;
@@ -333,68 +333,6 @@ class PromModel extends Model
 
         $rtn['result'] = true;
         $rtn['affected_row'] = $this->db->affectedRows();
-
-        return $rtn;
-    }
-
-
-    /**
-     * Get KW select info
-     *
-     * @param string $pm_id
-     * @return array
-     */
-    public function getKwSelectInfo(int $pm_id): array
-    {
-        // Default return variable
-        $rtn = array('result' => false, 'message' => '', 'row' => [], 'total_rows' => 0);
-
-
-        // Get list
-        $sql_params = [
-            'pm_id' => $pm_id
-        ];
-
-        $sql = "
-            SELECT 
-                k.cus_name, k.cus_mobile, 
-                kc.bnft_code, kc.cus_zip AS customer_zip, kc.cus_addr1 AS customer_addr1, kc.cus_addr2 AS customer_addr2, 
-                IFNULL(kc.hope_1, '') AS hope_1, IFNULL(kc.hope_2, '') AS hope_2, IFNULL(kc.hope_3, '') AS hope_3, 
-                IFNULL(kp.type, '') AS product_type, IFNULL(kp.items, '') AS product_items, 
-                CASE kp.type 
-                    WHEN 1 THEN '옵션 1' 
-                    WHEN 2 THEN '옵션 2' 
-                    WHEN 3 THEN '옵션 3' 
-                    ELSE '-' 
-                END AS product_type_kr, 
-                IF(p1.id IS NULL, 0, 1) AS enable_p1, 
-                IF(p2.id IS NULL, 0, 1) AS enable_p2, 
-                IF(p3.id IS NULL, 0, 1) AS enable_p3 
-            FROM promotion AS k 
-                JOIN promotion_customer AS kc ON k.id = kc.pm_id 
-                LEFT JOIN promotion_product AS kp ON kc.product_id = kp.id 
-                LEFT JOIN promotion_product AS p1 ON k.pm_code = p1.pm_code AND k.bnft_price = p1.bnft_price 
-                    AND p1.type = 1 AND p1.status = 1 
-                LEFT JOIN promotion_product AS p2 ON k.pm_code = p2.pm_code AND k.bnft_price = p2.bnft_price 
-                    AND p2.type = 2 AND p2.status = 1 
-                LEFT JOIN promotion_product AS p3 ON k.pm_code = p3.pm_code AND k.bnft_price = p3.bnft_price 
-                    AND p3.type = 3 AND p3.status = 1 
-            WHERE kc.pm_id = :pm_id: 
-            ;
-        ";
-        $query = $this->query($sql, $sql_params);
-
-        $rtn['row'] = $query->getRowArray();
-        $error = $this->error();
-        if ($error['code'] !== 0) {
-            $rtn['result'] = false;
-            $rtn['message'] = $error['message'];
-            return $rtn;
-        }
-        $query->freeResult();
-
-
-        $rtn['result'] = true;
 
         return $rtn;
     }
@@ -525,7 +463,7 @@ class PromModel extends Model
 
 
     /**
-     * Create Kw promotion user data
+     * Create promotion user data
      *
      * @return array
      */
@@ -660,43 +598,6 @@ class PromModel extends Model
             UPDATE promotion_customer AS ks 
             SET ks.send_sms = 1 
             WHERE ks.id = :customer_id: AND ks.send_sms = 0 
-            ;
-        ";
-        $query = $this->db->query($sql, $sql_params);
-        $error = $this->error();
-        if ($error['code'] !== 0) {
-            $rtn['result'] = false;
-            $rtn['message'] = $error['message'];
-            return $rtn;
-        }
-
-        $rtn['result'] = true;
-        $rtn['affected_row'] = $this->db->affectedRows();
-
-
-        return $rtn;
-    }
-
-    /**
-     * Set Kw promotion customer to sms fail
-     *
-     * @return array
-     */
-    public function setCustomerSmsFail(int $customer_id): array
-    {
-        // Default return variable
-        $rtn = array('result' => false, 'message' => '', 'affected_row' => 0);
-
-
-        // Get list
-        $sql_params = [
-            'customer_id' => $customer_id
-        ];
-
-        $sql = "
-            UPDATE promotion_customer AS ks 
-            SET ks.send_sms = 0 
-            WHERE ks.id = :customer_id: AND ks.send_sms = 1 
             ;
         ";
         $query = $this->db->query($sql, $sql_params);

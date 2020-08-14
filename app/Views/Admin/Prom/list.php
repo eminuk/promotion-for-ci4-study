@@ -118,7 +118,7 @@
         <legend>EXCEL 업로드</legend>
         <form name="form_upload" method="post" action="" enctype="multipart/form-data">
             <div>
-                <a href="/admin/kcar/importExcelSample" >양식 샘플 다운로드</a>
+                <a href="/admin/prom/importExcelSample" >양식 샘플 다운로드</a>
             </div>
             <div>
                 <input type="file" name="file_excel" accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
@@ -409,128 +409,7 @@
         pagination.append($('<button/>', { type: 'button', disabled: disabled_last, text: '»', click: function () { return doSearch(data.total_pages); } }));
     }
 
-    // ajax - 상품정보
-    function getProductInfo (pm_id) {
-        $.ajax({
-            url: '/api/admin/Kcar/productInfo/' + pm_id,
-            type: 'GET',
-            dataType: 'json',
-            data: {},
-            timeout: 30000,
-            beforeSubmit: function (arr, form, options) {},
-            beforeSend: function (jqXHR, settings) {},
-            uploadProgress: function (event, position, total, percentComplete) {},
-            success: function (data, textStatus, jqXHR) {
-                if (!data.result) {
-                    alert(data.message);
-                    return false;
-                }
-
-                let wash_service = data.data.wash_service.items.replace(/\n/g, ', ');
-                let wash_goods = data.data.wash_goods.items.replace(/\n/g, ', ');
-                let car_goods = data.data.car_goods.items.replace(/\n/g, ', ');
-                if (wash_service == '') {
-                    wash_service = '없음';
-                }
-                if (wash_goods == '') {
-                    wash_goods = '없음';
-                }
-                if (car_goods == '') {
-                    car_goods = '없음';
-                }
-
-                let msg = '';
-                msg += '상품코드: ' + data.data.bnft_code + '\n\n';
-                msg += '출장세차 서비스: ' + wash_service + '\n\n';
-                msg += 'Car Care 용품: ' + wash_goods + '\n\n';
-                msg += '차량 용품: ' + car_goods + '\n\n';
-
-                alert(msg);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR, textStatus, errorThrown);
-                alert("Ajax error has occurred. \n" + errorThrown);
-                return false;
-            },
-            complete: function (jqXHR, textStatus, form) {}
-        });
-        return false;
-    }
-
-    // ajax 신청상품정보
-    function getSeleetInfo(id) {
-        $.ajax({
-            url: '/api/admin/Kcar/selectInfo/' + id,
-            type: 'GET',
-            dataType: 'json',
-            data: {},
-            timeout: 30000,
-            beforeSubmit: function (arr, form, options) {},
-            beforeSend: function (jqXHR, settings) {},
-            uploadProgress: function (event, position, total, percentComplete) {},
-            success: function (data, textStatus, jqXHR) {
-                if (!data.result) {
-                    alert(data.message);
-                    return false;
-                }
-
-                let item = data.data;
-                let msg = '';
-                msg = '상품코드: ' + item.bnft_code + '\n\n';
-                msg += item.product_type_kr + ': ' + item.product_items.replace(/\n/g, ', ') + '\n\n';
-                if (item.product_type == 1) {
-                    msg += '희망일자(1): ' + item.hope_1 + '\n';
-                    msg += '희망일자(2): ' + item.hope_2 + '\n';
-                    msg += '희망일자(3): ' + item.hope_3 + '\n';
-                }
-
-                alert(msg);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR, textStatus, errorThrown);
-                alert("Ajax error has occurred. \n" + errorThrown);
-                return false;
-            },
-            complete: function (jqXHR, textStatus, form) {}
-        });
-        return false;
-    }
-
-    // sms 발송요청 확인
-    function sendSms(id) {
-        layoutCommonConfirm('알림', 'SMS를 발송하겠습니까?', function () {
-            ajaxSendSms(id);
-        });
-    }
-    // ajax sms 발송요청
-    function ajaxSendSms(id) {
-        $.ajax({
-            url: '/api/admin/Kcar/sms/',
-            type: 'POST',
-            dataType: 'json',
-            data: { pm_id: id },
-            timeout: 30000,
-            beforeSubmit: function (arr, form, options) {},
-            beforeSend: function (jqXHR, settings) {},
-            uploadProgress: function (event, position, total, percentComplete) {},
-            success: function (data, textStatus, jqXHR) {
-                if (!data.result) {
-                    alert(data.message);
-                    return false;
-                }
-                alert('SMS 전송 완료되었습니다.');
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR, textStatus, errorThrown);
-                alert("Ajax error has occurred. \n" + errorThrown);
-                return false;
-            },
-            complete: function (jqXHR, textStatus, form) {}
-        });
-        return false;
-    }
-
-    // 삭제 확인
+    // ajax - 삭제
     function doDelete() {
         let ids_cnt = $('input[name="ids[]"]:checked').length;
         if (ids_cnt == 0) {
@@ -538,17 +417,15 @@
             return false;
         }
 
-        layoutCommonConfirmAlert('알림', '총' + ids_cnt + '개의 항목을 삭제하시겠습니까?', function () {
-            ajaxDelete();
-        });
-    }
-    // ajax 삭제
-    function ajaxDelete() {
+        if (!confirm('총' + ids_cnt + '개의 항목을 삭제하시겠습니까?')) {
+            return false;
+        }
+
         $.ajax({
-            url: '/api/admin/Kcar/kw',
+            url: '/api/admin/prom/data',
             type: 'DELETE',
             dataType: 'json',
-            data: $('input[name="ids[]"]:checked').serialize(),
+            data: $('input[name="pm_ids[]"]:checked').serialize(),
             timeout: 30000,
             beforeSubmit: function (arr, form, options) {},
             beforeSend: function (jqXHR, settings) {},
@@ -588,7 +465,7 @@
         form_data.append("file_excel", file_obj[0].files[0]);
 
         $.ajax({
-            url: '/api/admin/Kcar/kw',
+            url: '/api/admin/prom/data',
             type: 'POST',
             dataType: 'json',
             processData: false,
@@ -647,7 +524,7 @@
     // Toggle excel upload ui
     function excelUploadUi() {
         $('form[name=form_upload]')[0].reset();
-        $('#modal-excel-upload').modal('toggle');
+        $('[show-group~=excel_upload]').toggle();
     }
 
     // Toggle product select ui
