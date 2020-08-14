@@ -30,8 +30,6 @@
 
         <select name="search_key">
             <option value="pm_code">등급코드</option>
-            <!-- <option value="car_number">차량번호</option> -->
-            <!-- <option value="car_model">모델</option> -->
             <option value="cus_name">고객</option>
             <option value="cus_mobile">연락처</option>
             <option value="cus_zip">우편번호</option>
@@ -39,7 +37,6 @@
             <option value="cus_addr2">상세주소</option>
             <option value="bnft_price">상품권금액</option>
             <option value="bnft_code">상품코드</option>
-            <option value="product">신청상품</option>
         </select>
         <input type="text" name="search_value" placeholder="Search" value="" />
         <button type="button" onclick="return doSearch(1);" >검색</button>
@@ -82,7 +79,7 @@
                     <th>등급코드</th>
                     <th>고객</th>
                     <th>연락처</th>
-                    <th>상품권금액</th>
+                    <th>상품금액</th>
 
                     <th>상품코드</th>
                     <th>신청여부</th>
@@ -91,8 +88,7 @@
                     <th>주소</th>
                     <th>상세주소</th>
                     <th>신청상품</th>
-                    <th>발송상태</th>
-                    <th>SMS</th>
+                    <th>관리</th>
                 </tr>
             </thead>
             <tbody id="list_body">
@@ -102,17 +98,11 @@
     <br />
 
     <div>
-        <button type="button" onclick="return doSearch(1);">1</button>
-        <button type="button" onclick="return doSearch(2);">2</button>
-        <button type="button" onclick="return doSearch(3);">3</button>
-        <button type="button" onclick="return doSearch(4);">4</button>
-        <button type="button" onclick="return doSearch(5);">5</button>
-        <button type="button" onclick="return doSearch(6);">6</button>
-        <button type="button" onclick="return doSearch(7);">7</button>
-        <button type="button" onclick="return doSearch(8);">8</button>
-        <button type="button" onclick="return doSearch(9);">9</button>
-        <button type="button" onclick="return doSearch(10);">10</button>
-        <button type="button" onclick="return doSearch(11);">11</button>
+        <apan>
+            (<span id="pagination_info_start">1</span> ~ <span id="pagination_info_end">10</span>)
+            / <span id="pagination_info_total">57</span>
+        </apan>
+        <span id="pagination"></span>
     </div>
     <br />
 
@@ -344,55 +334,21 @@
                         text: item.bnft_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                     }));
 
-                    tr_elem.append($('<td/>', { class: 'with-btn' })
-                        .append($('<button/>', {
-                            type: 'button',
-                            text: item.bnft_code,
-                            class: 'btn btn-xs btn-info width-40 m-r-2',
-                            click: function () {
-                                getProductInfo(item.id);
-                            }
-                        }))
-                    );
+                    tr_elem.append($('<td/>', { text: item.bnft_code}));
                     tr_elem.append($('<td/>', { text: item.is_select_kr }));
                     tr_elem.append($('<td/>', { text: item.select_at }));
                     tr_elem.append($('<td/>', { text: item.customer_zip }));
                     tr_elem.append($('<td/>', { text: item.customer_addr1 }));
                     tr_elem.append($('<td/>', { text: item.customer_addr2 }));
-                    if (item.type) {
-                        tr_elem.append($('<td/>', { class: 'with-btn' })
-                            .append($('<button/>', {
-                                type: 'button',
-                                text: item.type_kr,
-                                class: 'btn btn-xs btn-info width-90 m-r-2',
-                                click: function () {
-                                    getSeleetInfo(item.id);
-                                }
-                            }))
-                        );
-                    } else {
-                        tr_elem.append($('<td/>', { text: '-' }));
-                    }
-                    tr_elem.append($('<td/>', { text: item.send_sms_kr }));
-                    tr_elem.append($('<td/>', { class: 'with-btn' })
-                        .append($('<div/>', { class: 'btn-group' })
-                            .append($('<button/>', {
-                                type: 'button',
-                                text: '재발송',
-                                class: 'btn btn-xs btn-indigo width-60 m-r-2',
-                                click: function () {
-                                    sendSms(item.id);
-                                }
-                            }))
-                            .append($('<button/>', {
-                                type: 'button',
-                                text: '신청정보',
-                                class: 'btn btn-xs btn-purple width-60 m-r-2',
-                                click: function () {
-                                    productSelectUi(item.id);
-                                }
-                            }))
-                        )
+                    tr_elem.append($('<td/>', { text: item.type_kr }));
+                    tr_elem.append($('<td/>')
+                        .append($('<button/>', {
+                            type: 'button',
+                            text: '신청정보',
+                            click: function () {
+                                productSelectUi(item.id);
+                            }
+                        }))
                     );
 
                     $('#list_body').append(tr_elem);
@@ -435,21 +391,22 @@
         if (block_end > data.total_pages) {
             block_end = data.total_pages;
         }
-        let first_class = (data.page_num <= 1)? ' disabled': '';
-        let previous_class = (block_start <= 1)? ' disabled': '';
-        let next_class = (block_end >= data.total_pages)? ' disabled': '';
-        let last_class = (data.page_num >= data.total_pages)? ' disabled': '';
+        let disabled_first = (data.page_num <= 1);
+        let disabled_previous = (block_start <= 1);
+        let disabled_next = (block_end >= data.total_pages);
+        let disabled_last = (data.page_num >= data.total_pages);
 
         pagination.empty();
-        pagination.append($('<li/>', { class: 'page-item' + first_class }).append($('<a/>', { class: 'page-link', text: '«', click: function () { return doSearch(1); } })));
-        pagination.append($('<li/>', { class: 'page-item' + previous_class }).append($('<a/>', { class: 'page-link', text: '‹', click: function () { return doSearch(block_start - 1); } })));
+        pagination.append($('<button/>', { type: 'button', disabled: disabled_first, text: '«', click: function () { return doSearch(1); } }));
+        pagination.append($('<button/>', { type: 'button', disabled: disabled_previous, text: '‹', click: function () { return doSearch(block_start - 1); } }));
         for (var i = block_start; i <= block_end; i++) {
             let num_class = (i == data.page_num)? ' active': '';
+            let disabled_num = (i == data.page_num);
             let page = i;
-            pagination.append($('<li/>', { class: 'page-item' + num_class }).append($('<a/>', { class: 'page-link', text: page, click: function () { return doSearch(page); } })));
+            pagination.append($('<button/>', { type: 'button', disabled: disabled_num, text: page, click: function () { return doSearch(page); } }));
         }
-        pagination.append($('<li/>', { class: 'page-item' + next_class }).append($('<a/>', { class: 'page-link', text: '›', click: function () { return doSearch(block_end + 1); } })));
-        pagination.append($('<li/>', { class: 'page-item' + last_class }).append($('<a/>', { class: 'page-link', text: '»', click: function () { return doSearch(data.total_pages); } })));
+        pagination.append($('<button/>', { type: 'button', disabled: disabled_next, text: '›', click: function () { return doSearch(block_end + 1); } }));
+        pagination.append($('<button/>', { type: 'button', disabled: disabled_last, text: '»', click: function () { return doSearch(data.total_pages); } }));
     }
 
     // ajax - 상품정보
@@ -676,15 +633,15 @@
 
     // Download excel
     function downloadExcel() {
-        if ($('input[name=sdate]').val() == '') {
-            alert('조회기간을 선택해 주세요.');
-            return false;
-        }
-        if ($('input[name=edate]').val() == '') {
-            alert('조회기간을 선택해 주세요.');
-            return false;
-        }
-        location.href = '/admin/kcar/kwListExcel?' + $('form[name=form_search]').serialize();
+        // if ($('input[name=sdate]').val() == '') {
+        //     alert('조회기간을 선택해 주세요.');
+        //     return false;
+        // }
+        // if ($('input[name=edate]').val() == '') {
+        //     alert('조회기간을 선택해 주세요.');
+        //     return false;
+        // }
+        location.href = '/admin/prom/listExcel?' + $('form[name=form_search]').serialize();
     }
 
     // Toggle excel upload ui

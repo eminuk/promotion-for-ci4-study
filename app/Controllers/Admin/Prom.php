@@ -21,7 +21,7 @@ class Prom extends \App\Controllers\Admin\BaseController
      *
      * @var [type]
      */
-    private $Prom_model;
+    private $prom_model;
 
     /**
      * Construct
@@ -31,7 +31,7 @@ class Prom extends \App\Controllers\Admin\BaseController
         $this->base_controller_cfg['auto_login_check'] = true;
 
         // Load models
-        $this->Prom_model = new \App\Models\PromModel();
+        $this->prom_model = new \App\Models\PromModel();
     }
 
     /**
@@ -50,7 +50,7 @@ class Prom extends \App\Controllers\Admin\BaseController
      *
      * @return void
      */
-    public function List()
+    public function list()
     {
         // Set view date
         // $this->view_data['sample'] = [ 'first' => 1 ];
@@ -63,7 +63,7 @@ class Prom extends \App\Controllers\Admin\BaseController
      *
      * @return void
      */
-    public function kwListExcel()
+    public function listExcel()
     {
         // Read parameters
         $params = [
@@ -99,16 +99,17 @@ class Prom extends \App\Controllers\Admin\BaseController
         // Set file name
         $file_name = 'promotion_list__'.date('YmdHis').'.xlsx';
 
-        // Get Kw list
-        $res = $this->Prom_model->getKwList($params, false);
+        // Get promotion list
+        $res = $this->prom_model->getPromList($params, false);
         if (!$res['result']) {
             $this->commonLib->jsAlertBack($res['message']);
         }
 
         // Promotion data export excel - box/spout
-        // $this->_kwListExcelBoxSpout($file_name, $res['list']);
+        $this->_listExcelBoxSpout($file_name, $res['list']);
+
         // Promotion data export excel - PhpOffice\PhpSpreadsheet
-        $this->_kwListExcelPhpSpreadsheet($file_name, $res['list']);
+        // $this->_listExcelPhpSpreadsheet($file_name, $res['list']);
     }
 
     /**
@@ -116,7 +117,7 @@ class Prom extends \App\Controllers\Admin\BaseController
      *
      * @return void
      */
-    private function _kwListExcelBoxSpout(string $file_name, array $rows): void
+    private function _listExcelBoxSpout(string $file_name, array $rows): void
     {
         // box/spout - Create default style
         $style_default = (new StyleBuilder())
@@ -140,16 +141,9 @@ class Prom extends \App\Controllers\Admin\BaseController
         // box/spout - Set columns header and add
         $header = [
             '순번', '고유번호', '등급코드', 
-            // '상품금액', '발급지점', '발급일자', '구분',
-            // '차량번호', '제조사', '모델', '대분류', '소분류', '연식',
-            '고객', '연락처', 
-            // '우편번호', '주소', '상세주소', 
-            '상품권금액', 
-            // '상품권종류', '세차 서비스', 
+            '고객', '연락처', '상품금액', 
             '상품코드', '신청여부', '신청일자', 
-            '신청 우편번호', '신청 주소', '신청 상세주소', 
-            // '주소 변경', 
-            '신청상품', '발송상태'
+            '신청 우편번호', '신청 주소', '신청 상세주소', '신청상품', 
         ];
         $row_from_values = WriterEntityFactory::createRowFromArray($header, $style_header);
         $writer->addRow($row_from_values);
@@ -158,16 +152,9 @@ class Prom extends \App\Controllers\Admin\BaseController
         foreach ($rows as $item) {
             $row = [
                 $item['id'], $item['pm_number'], $item['pm_code'], 
-                // $item['kw_price'], $item['kw_branch'], $item['kw_date'], $item['kw_type'], 
-                // $item['car_number'], $item['car_manufacturer'], $item['car_model'], $item['car_trim'], $item['car_level'], $item['car_year'], 
-                $item['cus_name'], $item['cus_mobile'], 
-                // $item['cus_zip'], $item['cus_addr1'], $item['cus_addr2'], 
-                $item['bnft_price'], 
-                // $item['bnft_type'], (($item['wash_service'] == 1)? '': 'x'), 
+                $item['cus_name'], $item['cus_mobile'], $item['bnft_price'], 
                 $item['bnft_code'], $item['is_select_kr'], $item['select_at'], 
-                $item['customer_zip'], $item['customer_addr1'], $item['customer_addr2'], 
-                // $item['addr_type_kr'],
-                $item['type_kr'], $item['send_sms_kr']
+                $item['customer_zip'], $item['customer_addr1'], $item['customer_addr2'], $item['type_kr'], 
             ];
 
             // box/spout - Set row and add
@@ -187,7 +174,7 @@ class Prom extends \App\Controllers\Admin\BaseController
      *
      * @return void
      */
-    private function _kwListExcelPhpSpreadsheet(string $file_name, array $rows): void
+    private function _listExcelPhpSpreadsheet(string $file_name, array $rows): void
     {
         // PhpSpreadsheet - Load template
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load(FCPATH.'asset/sample/template__20200729000000.xlsx');
@@ -203,43 +190,20 @@ class Prom extends \App\Controllers\Admin\BaseController
             $worksheet->getCell("A{$r}")->setValue($item['id']);
             $worksheet->getCell("B{$r}")->setValue($item['pm_number']);
             $worksheet->getCell("C{$r}")->setValue($item['pm_code']);
-            // $worksheet->getCell("D{$r}")->setValue($item['kw_price']);
-            // $worksheet->getCell("E{$r}")->setValue($item['kw_branch']);
-            // $worksheet->getCell("F{$r}")->setValue($item['kw_date']);
-            // $worksheet->getCell("G{$r}")->setValue($item['kw_type']);
-
-            // $worksheet->getCell("H{$r}")->setValue($item['car_number']);
-            // $worksheet->getCell("I{$r}")->setValue($item['car_manufacturer']);
-            // $worksheet->getCell("J{$r}")->setValue($item['car_model']);
-            // $worksheet->getCell("K{$r}")->setValue($item['car_trim']);
-            // $worksheet->getCell("L{$r}")->setValue($item['car_level']);
-            // $worksheet->getCell("M{$r}")->setValue(date('M.y', strtotime($item['car_year'])));
-
-            $worksheet->getCell("N{$r}")->setValue($item['cus_name']);
-            $worksheet->getCell("O{$r}")->setValue($item['cus_mobile']);
-            // $worksheet->getCell("P{$r}")->setValue($item['cus_zip']);
-            // $worksheet->getCell("Q{$r}")->setValue($item['cus_addr1']);
-            // $worksheet->getCell("R{$r}")->setValue($item['cus_addr2']);
-
-            $worksheet->getCell("S{$r}")->setValue($item['bnft_price']);
-            // $worksheet->getCell("T{$r}")->setValue($item['bnft_type']);
-            // $worksheet->getCell("U{$r}")->setValue((($item['wash_service'] == 1)? '': 'x'));
-
-            $worksheet->getCell("V{$r}")->setValue($item['bnft_code']);
-            $worksheet->getCell("W{$r}")->setValue($item['is_select_kr']);
-            $worksheet->getCell("X{$r}")->setValue($item['select_at']);
-
-            $worksheet->getCell("Y{$r}")->setValue($item['customer_zip']);
-            $worksheet->getCell("Z{$r}")->setValue($item['customer_addr1']);
-            $worksheet->getCell("AA{$r}")->setValue($item['customer_addr2']);
-            // $worksheet->getCell("AB{$r}")->setValue($item['addr_type_kr']);
-
-            $worksheet->getCell("AC{$r}")->setValue($item['type_kr']);
-            $worksheet->getCell("AD{$r}")->setValue($item['send_sms_kr']);
+            $worksheet->getCell("D{$r}")->setValue($item['cus_name']);
+            $worksheet->getCell("E{$r}")->setValue($item['cus_mobile']);
+            $worksheet->getCell("F{$r}")->setValue($item['bnft_price']);
+            $worksheet->getCell("G{$r}")->setValue($item['bnft_code']);
+            $worksheet->getCell("H{$r}")->setValue($item['is_select_kr']);
+            $worksheet->getCell("I{$r}")->setValue($item['select_at']);
+            $worksheet->getCell("J{$r}")->setValue($item['customer_zip']);
+            $worksheet->getCell("K{$r}")->setValue($item['customer_addr1']);
+            $worksheet->getCell("L{$r}")->setValue($item['customer_addr2']);
+            $worksheet->getCell("M{$r}")->setValue($item['type_kr']);
 
             // PhpSpreadsheet - Add background color for even rows
             if (($r % 2) == 1) {
-                $worksheet->getStyle("A{$r}:AD{$r}")
+                $worksheet->getStyle("A{$r}:M{$r}")
                     ->getFill()
                     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                     ->getStartColor()->setARGB('F9F9F9');
@@ -261,10 +225,10 @@ class Prom extends \App\Controllers\Admin\BaseController
                 ),
             ),
         );
-        $worksheet->getStyle("A2:AD{$r}")->applyFromArray($style_border);
+        $worksheet->getStyle("A2:M{$r}")->applyFromArray($style_border);
 
         // PhpSpreadsheet - Set text wrap
-        $worksheet->getStyle("A2:AD{$r}")->getAlignment()->setWrapText(true);
+        $worksheet->getStyle("A2:M{$r}")->getAlignment()->setWrapText(true);
 
         // PhpSpreadsheet - Set active sell
         $worksheet->getStyle("A2");

@@ -42,13 +42,13 @@ class PromModel extends Model
     }
 
     /**
-     * Get Kw promotion list
+     * Get promotion list
      *
      * @param array $params
      * @param boolean $use_paging
      * @return array
      */
-    public function getKwList(array $params = [], bool $use_paging = true): array
+    public function getPromList(array $params = [], bool $use_paging = true): array
     {
         // Default return variable
         $rtn = array('result' => false, 'message' => '', 'list' => [], 'total_rows' => 0);
@@ -91,14 +91,6 @@ class PromModel extends Model
                     $sql_where .= "AND kp.items LIKE :search_value: ESCAPE '!' ";
                     $sql_params['search_value'] = '%'.$this->db->escapeString($params['search_value']).'%';
                     break;
-                // case 'car_number':
-                //     $sql_where .= "AND k.car_number LIKE :search_value: ESCAPE '!' ";
-                //     $sql_params['search_value'] = '%'.$this->db->escapeString($params['search_value']).'%';
-                //     break;
-                // case 'car_model':
-                //     $sql_where .= "AND k.car_model LIKE :search_value: ESCAPE '!' ";
-                //     $sql_params['search_value'] = '%'.$this->db->escapeString($params['search_value']).'%';
-                //     break;
                 case 'cus_name':
                     $sql_where .= "AND k.cus_name LIKE :search_value: ESCAPE '!' ";
                     $sql_params['search_value'] = '%'.$this->db->escapeString($params['search_value']).'%';
@@ -127,10 +119,6 @@ class PromModel extends Model
                     $sql_where .= "AND kc.bnft_code LIKE :search_value: ESCAPE '!' ";
                     $sql_params['search_value'] = '%'.$this->db->escapeString($params['search_value']).'%';
                     break;
-                case 'product':
-                    $sql_where .= "AND kp.items LIKE :search_value: ESCAPE '!' ";
-                    $sql_params['search_value'] = '%'.$this->db->escapeString($params['search_value']).'%';
-                    break;
                 default:
                     $rtn['message'] = '잘못된 검색 설정입니다.';
                     return $rtn;
@@ -152,18 +140,11 @@ class PromModel extends Model
                 k.bnft_price, 
                 kc.bnft_code, IF(kc.product_id IS NULL, '미신청', '신청완료') AS is_select_kr, kc.select_at, 
                 kc.cus_zip AS customer_zip, kc.cus_addr1 AS customer_addr1, kc.cus_addr2 AS customer_addr2, kc.send_sms, 
-                CASE kc.send_sms 
-                    WHEN 0 THEN '미발송' 
-                    WHEN 1 THEN '발송완료' 
-                    WHEN 2 THEN '발송실패' 
-                    WHEN 3 THEN '재발송요청' 
-                    ELSE '-' 
-                END AS send_sms_kr, 
                 kp.id AS product_id, kp.type, kp.items, 
                 CASE kp.type 
-                    WHEN 1 THEN '출장세차 서비스' 
-                    WHEN 2 THEN 'Car Care 용품' 
-                    WHEN 3 THEN '자동차 용품' 
+                    WHEN 1 THEN '옵션 1' 
+                    WHEN 2 THEN '옵션 2' 
+                    WHEN 3 THEN '옵션 3' 
                     ELSE '' 
                 END AS type_kr 
             FROM promotion AS k 
@@ -381,9 +362,9 @@ class PromModel extends Model
                 IFNULL(kc.hope_1, '') AS hope_1, IFNULL(kc.hope_2, '') AS hope_2, IFNULL(kc.hope_3, '') AS hope_3, 
                 IFNULL(kp.type, '') AS product_type, IFNULL(kp.items, '') AS product_items, 
                 CASE kp.type 
-                    WHEN 1 THEN '출장세차 서비스' 
-                    WHEN 2 THEN 'Car Care 용품' 
-                    WHEN 3 THEN '자동차 용품' 
+                    WHEN 1 THEN '옵션 1' 
+                    WHEN 2 THEN '옵션 2' 
+                    WHEN 3 THEN '옵션 3' 
                     ELSE '-' 
                 END AS product_type_kr, 
                 IF(p1.id IS NULL, 0, 1) AS enable_p1, 
@@ -758,9 +739,9 @@ class PromModel extends Model
                 kc.cus_zip AS customer_zip, kc.cus_addr1 AS customer_addr1, kc.cus_addr2 AS customer_addr2, kc.hope_1, kc.hope_2, kc.hope_3, 
                 kp.type, kp.items, 
                 CASE kp.type 
-                    WHEN 1 THEN '출장세차 서비스' 
-                    WHEN 2 THEN 'Car Care 용품' 
-                    WHEN 3 THEN '자동차 용품' 
+                    WHEN 1 THEN '옵션 1' 
+                    WHEN 2 THEN '옵션 2' 
+                    WHEN 3 THEN '옵션 3' 
                     ELSE '-' 
                 END AS type_kr 
             FROM promotion AS k 

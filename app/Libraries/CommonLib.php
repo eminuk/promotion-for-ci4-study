@@ -108,6 +108,36 @@ class CommonLib
         return $rtn;
     }
 
+    /**
+     * Read Cookie with default value, trim(string only)
+     *
+     * @param string $name
+     * @param string|int|array|null $default_value
+     * @return string|int|array|null
+     */
+    public function readCookie(string $name, $default_value = null)
+    {
+        // Read parameter
+        $rtn = $this->request->getCookie($name);
+
+        // Check if parameter are set
+        if (!isset($rtn) || $rtn === []) {
+            return $default_value;
+        }
+
+        // Trim
+        if (gettype($default_value) == 'string') {
+            $rtn = trim($rtn);
+        }
+        
+        // Type casting
+        if (gettype($default_value) == 'integer') {
+            $rtn = (int)$rtn;
+        }
+
+        return $rtn;
+    }
+
 
 
     /**
@@ -148,6 +178,17 @@ class CommonLib
         if (!$rendering_view) {
             exit();
         }
+    }
+
+    /**
+     * Add javascript location replace
+     *
+     * @param string $redirect_url
+     * @return void
+     */
+    public function jsRedirect(string $redirect_url): void
+    {
+        $this->addJavascript("location.replace('{$redirect_url}');", false);
     }
 
     /**
@@ -259,7 +300,7 @@ class CommonLib
     {
         // 메시지 발송
         $rtn = $this->sendMessage(
-            'EMAIL', 'Support@autocarz.co.kr', $to, $title, $content, 'HTML'
+            'EMAIL', 'support@autocarz.co.kr', $to, $title, $content, 'HTML'
         );
 
         return $rtn;
@@ -280,7 +321,7 @@ class CommonLib
 
         // 메시지 발송
         $rtn = $this->sendMessage(
-            'SMS', '025550206', $to, $title, $content, 'LMS'
+            'SMS', '0218000206', $to, $title, $content, 'LMS'
         );
 
         return $rtn;

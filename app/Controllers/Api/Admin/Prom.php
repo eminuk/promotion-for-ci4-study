@@ -31,7 +31,7 @@ class Prom extends \App\Controllers\Api\BaseController
      *
      * @return void
      */
-    public function List()
+    public function list()
     {
         // Validate allowed method
         $this->validateAllowedMethod([ 'GET' ]);
@@ -90,8 +90,8 @@ class Prom extends \App\Controllers\Api\BaseController
             ]
         ];
 
-        // Get Kw list
-        $res = $this->prom_model->getKwList($params);
+        // Get promotion list
+        $res = $this->prom_model->getPromList($params);
         if ($res['result']) {
             $rtn['data']['list'] = $res['list'];
             $rtn['data']['total_pages'] = (int)ceil($res['total_rows'] / $params['page_size']);
@@ -105,7 +105,7 @@ class Prom extends \App\Controllers\Api\BaseController
     }
 
     /**
-     * Get KW product info API
+     * Get promotion product info API
      *
      * @param string $pm_id
      * @return void
@@ -130,7 +130,7 @@ class Prom extends \App\Controllers\Api\BaseController
             ]
         ];
 
-        // Get KW product info
+        // Get promotion product info
         $res = $this->prom_model->getKwProductInfo($pm_id);
         if ($res['result']) {
             foreach ($res['list'] as $item) {
@@ -200,7 +200,7 @@ class Prom extends \App\Controllers\Api\BaseController
             ]
         ];
 
-        // Get KW product info
+        // Get promotion product info
         $res = $this->prom_model->getKwSelectInfo($pm_id);
         if ($res['result']) {
             $item = $res['row'];
@@ -246,7 +246,7 @@ class Prom extends \App\Controllers\Api\BaseController
     }
 
     /**
-     * Import KW promotion data from excel
+     * Import promotion data from excel
      *
      * @return void
      */
@@ -290,7 +290,7 @@ class Prom extends \App\Controllers\Api\BaseController
 
         // Check header row
         $is_first_row = true;
-        // KW promotion data
+        // promotion data
         $kw_data = [];
 
         // box/spout - Read sheets
@@ -317,7 +317,7 @@ class Prom extends \App\Controllers\Api\BaseController
                     continue;
                 }
 
-                // Read and add kw data
+                // Read and add promotion data
                 $res_data = $this->_kwPostReadData($cells);
                 if (!$res_data['result']) {
                     $rtn['message'] = $res_data['message'];
@@ -369,7 +369,7 @@ class Prom extends \App\Controllers\Api\BaseController
 
         unset($kw_data, $res_reg);
 
-        // Send sms to new KW customer
+        // Send sms to new promotion customer
         $res_sms = $this->_sendSms();
 
         return $this->respond($rtn, 200, '');
@@ -557,7 +557,7 @@ class Prom extends \App\Controllers\Api\BaseController
         return $rtn;
     }
     /**
-     * Send sms to new KW customer
+     * Send sms to new promotion customer
      *
      * @return array
      */
@@ -565,13 +565,13 @@ class Prom extends \App\Controllers\Api\BaseController
     {
         $rtn = [ 'result' => true, 'message' => '' ];
 
-        // Create Kw promotion user data
+        // Create promotion user data
         $res_create = $this->prom_model->createCustomer();
 
         // 무한 루프 방지 하기 위해 반복 횟수 제한
         $do_cunter = 500;
         do {
-            // Get KW Customer List in 100 units for send sms
+            // Get promotion Customer List in 100 units for send sms
             $res_customer = $this->prom_model->getSmsTarget();
             if (!$res_customer['result']) {
                 $rtn['result'] = false;
@@ -581,7 +581,7 @@ class Prom extends \App\Controllers\Api\BaseController
 
             // Send SMS progress
             foreach ($res_customer['list'] as $item) {
-                // Set Kw promotion customer to sms sended
+                // Set promotion customer to sms sended
                 $res_send = $this->prom_model->setCustomerSmsSended($item['customer_id']);
                 if (!$res_send['result']) {
                     $rtn['result'] = false;
@@ -620,7 +620,7 @@ class Prom extends \App\Controllers\Api\BaseController
     }
 
     /**
-     * Delete KW promotion data
+     * Delete promotion data
      *
      * @return mixed
      */
@@ -649,7 +649,7 @@ class Prom extends \App\Controllers\Api\BaseController
             ]
         ];
         
-        // Get Kw promotion info
+        // Get promotion info
         $res = $this->prom_model->deleteKw($pm_ids);
         if (!$res['result']) {
             $rtn['result'] = false;
@@ -689,7 +689,7 @@ class Prom extends \App\Controllers\Api\BaseController
             'data' => []
         ];
 
-        // Get Kw promotion info
+        // Get promotion info
         $res = $this->prom_model->getKwInfo($pm_id);
         if (!$res['result'] || empty($res['row'])) {
             $rtn['result'] = false;
