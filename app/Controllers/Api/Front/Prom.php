@@ -78,7 +78,7 @@ class Prom extends \App\Controllers\Api\BaseController
     }
 
     /**
-     * Selete kw product API
+     * Selete promotion product API
      *
      * @return void
      */
@@ -134,22 +134,25 @@ class Prom extends \App\Controllers\Api\BaseController
         }
 
         // Additional validate parameter
-        if ($params['type'] == '1') {
-            if (!$this->validateCheck($params['hope_1'], 'required|valid_date')) {
-                $this->responseParameterValidateFail([
-                    'hope_1' => 'The hope_1 is must required and date type.'
-                ]);
-            }
-            if (!empty($params['hope_2']) && !$this->validateCheck($params['hope_2'], 'valid_date')) {
-                $this->responseParameterValidateFail([
-                    'hope_2' => 'The hope_2 is must required and date type.'
-                ]);
-            }
-            if (!empty($params['hope_3']) && !$this->validateCheck($params['hope_3'], 'valid_date')) {
-                $this->responseParameterValidateFail([
-                    'hope_3' => 'The hope_3 is must required and date type.'
-                ]);
-            }
+        if (!empty($params['hope_1']) && !$this->validateCheck($params['hope_1'], 'valid_date')) {
+            $this->responseParameterValidateFail([
+                'hope_1' => 'The hope_1 is must date type.'
+            ]);
+        }
+        if (!empty($params['hope_2']) && !$this->validateCheck($params['hope_2'], 'valid_date')) {
+            $this->responseParameterValidateFail([
+                'hope_2' => 'The hope_2 is must date type.'
+            ]);
+        }
+        if (!empty($params['hope_3']) && !$this->validateCheck($params['hope_3'], 'valid_date')) {
+            $this->responseParameterValidateFail([
+                'hope_3' => 'The hope_3 is must date type.'
+            ]);
+        }
+        if (empty($params['hope_1']) && empty($params['hope_2']) && empty($params['hope_3'])) {
+            $this->responseParameterValidateFail([
+                'hope' => 'The hope is required.'
+            ]);
         }
 
 
@@ -163,7 +166,7 @@ class Prom extends \App\Controllers\Api\BaseController
         ];
 
         // Set product setect
-        $res = $this->prom_model->setKwProductSelect($params, in_array($params['first_only'], ['Y', 'y']));
+        $res = $this->prom_model->setProductSelect($params, in_array($params['first_only'], ['Y', 'y']));
         if ($res['result']) {
             $rtn['data']['affected_row'] = $res['affected_row'];
         } else {

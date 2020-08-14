@@ -105,6 +105,71 @@ class Prom extends \App\Controllers\Api\BaseController
     }
 
     /**
+     * Get promotion select info API
+     *
+     * @param string $prom_id
+     * @param string $bnft_price
+     * @return void
+     */
+    public function SelectInfo(string $prom_id)
+    {
+        // Validate allowed method
+        $this->validateAllowedMethod([ 'GET' ]);
+
+        // Validate parameter
+        $this->validateVariable($prom_id, 'required|is_natural_no_zero');
+
+        // Set default response data
+        $rtn = [
+            'result' => true,
+            'message' => '',
+            'data' => [
+                'cus_name' => '',
+                'cus_mobile' => '',
+                'bnft_code' => '',
+                'customer_zip' => '',
+                'customer_addr1' => '',
+                'customer_addr2' => '',
+                'product_type' => '',
+                'product_type_kr' => '',
+                'product_items' => '',
+                'hope_1' => '',
+                'hope_2' => '',
+                'hope_3' => '',
+                'enable_p1' => '',
+                'enable_p2' => '',
+                'enable_p3' => '',
+            ]
+        ];
+
+        // Get product info
+        $res = $this->prom_model->getSelectInfo($prom_id);
+        if ($res['result']) {
+            $item = $res['row'];
+            $rtn['data']['cus_name'] = $item['cus_name'];
+            $rtn['data']['cus_mobile'] = $item['cus_mobile'];
+            $rtn['data']['bnft_code'] = $item['bnft_code'];
+            $rtn['data']['customer_zip'] = $item['customer_zip'];
+            $rtn['data']['customer_addr1'] = $item['customer_addr1'];
+            $rtn['data']['customer_addr2'] = $item['customer_addr2'];
+            $rtn['data']['product_type'] = $item['product_type'];
+            $rtn['data']['product_type_kr'] = $item['product_type_kr'];
+            $rtn['data']['product_items'] = $item['product_items'];
+            $rtn['data']['hope_1'] = $item['hope_1'];
+            $rtn['data']['hope_2'] = $item['hope_2'];
+            $rtn['data']['hope_3'] = $item['hope_3'];
+            $rtn['data']['enable_p1'] = $item['enable_p1'];
+            $rtn['data']['enable_p2'] = $item['enable_p2'];
+            $rtn['data']['enable_p3'] = $item['enable_p3'];
+        } else {
+            $rtn['result'] = false;
+            $rtn['message'] = $res['message'];
+        }
+
+        return $this->respond($rtn, 200, '');
+    }
+
+    /**
      * Promotion data
      *
      * @return void

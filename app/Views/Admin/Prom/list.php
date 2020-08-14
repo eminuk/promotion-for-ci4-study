@@ -6,6 +6,7 @@
 <?= $this->section('head_add_area') ?>
 <style type="text/css">
     [show-group~="excel_upload"] { display:none; }
+    [show-group~="customre_select"] { display:none; }
 </style>
 <?= $this->endSection() ?>
 
@@ -128,6 +129,50 @@
 
             <button type="button" onclick="return doExcelUpload();">등록</button>
             <button type="button" onclick="return excelUploadUi();">취소</button>
+        </form>
+    </fieldset>
+    <br />
+
+    <fieldset id="customre_select" show-group="customre_select">
+        <legend>신청 상품 등록/수정</legend>
+        <form name="form_product_select" method="post" action="">
+            <input type="hidden" name="cus_name" value="" />
+            <input type="hidden" name="cus_mobile" value="" />
+            <input type="hidden" name="first_only" value="N" />
+
+            <h4>이름 (연락처)</h4>
+            <br />
+
+            <div>
+                상품선택 <br />
+                <label><input type="radio" name="type" value="1" /> 옵션 1</label> &nbsp; 
+                <label><input type="radio" name="type" value="2" /> 옵션 2</label> &nbsp; 
+                <label><input type="radio" name="type" value="3" /> 옵션 3</label> &nbsp; 
+            </div>
+            <br />
+
+            <div>
+                주소 <button type="button" onclick="execDaumPostcode();">주소 검색</button><br />
+                <div id="postcode_wrap" style="display:none; border:1px solid; margin:5px 0; position:relative;">
+                    <img src="//t1.daumcdn.net/postcode/resource/images/close.png" id="btnFoldWrap" style="display:none; cursor:pointer; position:absolute; right:0px; top:-1px; z-index:1;" onclick="foldDaumPostcode()" alt="접기 버튼">
+                </div>
+                <input type="text" name="cus_zip" readonly /> <br />
+                <input type="text" name="cus_addr1" readonly /> <br />
+                <input type="text" name="cus_addr2" placeholder="상세 주소를 입력해주세요" /> <br />
+            </div>
+            <br />
+
+            <div>
+                수령희망일 <br />
+                1: <input type="text" name="hope_1" placeholder="날짜를 선택해주세요" readonly /> <br />
+                2: <input type="text" name="hope_2" placeholder="날짜를 선택해주세요" readonly /> <br />
+                3: <input type="text" name="hope_3" placeholder="날짜를 선택해주세요" readonly /> <br />
+            </div>
+            <br />
+
+            <hr />
+            <button type="button" onclick="return setSelectInfo();">등록</button>
+            <button type="button" onclick="return productSelectUiClose();">취소</button>
         </form>
     </fieldset>
     <br />
@@ -262,18 +307,6 @@
                 $('input[name="ids[]"]').prop('checked', true);
             } else {
                 $('input[name="ids[]"]').prop('checked', false);
-            }
-        });
-
-        // 신청 상품 등록/수정 상품선택 분기
-        $('#modal-customre-select input[name=type]').change(function () {
-            if ($('#modal-customre-select input[name=type]:checked').val() == 1) {
-                $('[show-group~="type_1"]').show();
-            } else {
-                $('[show-group~="type_1"]').hide();
-                $('#modal-customre-select input[name=hope_1]').val('');
-                $('#modal-customre-select input[name=hope_2]').val('');
-                $('#modal-customre-select input[name=hope_3]').val('');
             }
         });
 
@@ -529,21 +562,13 @@
 
     // Toggle product select ui
     function productSelectUi(id) {
-        let modal = $('#modal-customre-select');
-        modal.find('legend').text();
-        // modal.find('#form_product_select_radio1').parent().show();
-        // modal.find('#form_product_select_radio2').parent().show();
-        // modal.find('#form_product_select_radio3').parent().show();
-        modal.find('#form_product_select_radio1').prop('disabled', false).siblings('label').removeClass('text-decoration-line-through');
-        modal.find('#form_product_select_radio2').prop('disabled', false).siblings('label').removeClass('text-decoration-line-through');
-        modal.find('#form_product_select_radio3').prop('disabled', false).siblings('label').removeClass('text-decoration-line-through');
-        modal.modal('hide');
+        let wrap = $('#customre_select');
+        $('#modal-customre-select').hide();
         $('form[name=form_product_select]')[0].reset();
-        $('[show-group~="type_1"]').hide();
 
         // ajax 신청상품정보
         $.ajax({
-            url: '/api/admin/Kcar/selectInfo/' + id,
+            url: '/api/admin/prom/selectInfo/' + id,
             type: 'GET',
             dataType: 'json',
             data: {},
@@ -559,33 +584,30 @@
 
                 let item = data.data;
 
-                modal.find('legend').text(item.cus_name + '(' + item.cus_mobile + ')');
-                modal.find('input[name=cus_name').val(item.cus_name);
-                modal.find('input[name=cus_mobile').val(item.cus_mobile);
-                modal.find('input[name=cus_zip').val(item.customer_zip);
-                modal.find('input[name=cus_addr1').val(item.customer_addr1);
-                modal.find('input[name=cus_addr2').val(item.customer_addr2);
-                modal.find('input[name=hope_1').val(item.hope_1);
-                modal.find('input[name=hope_2').val(item.hope_2);
-                modal.find('input[name=hope_3').val(item.hope_3);
+                wrap.find('h4').text(item.cus_name + '(' + item.cus_mobile + ')');
+                wrap.find('input[name=cus_name').val(item.cus_name);
+                wrap.find('input[name=cus_mobile').val(item.cus_mobile);
+                wrap.find('input[name=cus_zip').val(item.customer_zip);
+                wrap.find('input[name=cus_addr1').val(item.customer_addr1);
+                wrap.find('input[name=cus_addr2').val(item.customer_addr2);
+                wrap.find('input[name=hope_1').val(item.hope_1);
+                wrap.find('input[name=hope_2').val(item.hope_2);
+                wrap.find('input[name=hope_3').val(item.hope_3);
                 if (item.product_type) {
-                    modal.find('input[name=type][value=' + item.product_type + ']').prop('checked', true);
-                }
-                if (item.enable_p1 == 0) {
-                    // modal.find('#form_product_select_radio1').parent().hide();
-                    modal.find('#form_product_select_radio1').prop('disabled', true).siblings('label').addClass('text-decoration-line-through');
-                }
-                if (item.enable_p2 == 0) {
-                    // modal.find('#form_product_select_radio2').parent().hide();
-                    modal.find('#form_product_select_radio2').prop('disabled', true).siblings('label').addClass('text-decoration-line-through');
-                }
-                if (item.enable_p3 == 0) {
-                    // modal.find('#form_product_select_radio3').parent().hide();
-                    modal.find('#form_product_select_radio3').prop('disabled', true).siblings('label').addClass('text-decoration-line-through');
+                    wrap.find('input[name=type][value=' + item.product_type + ']').prop('checked', true);
                 }
 
-                modal.find('input[name=type]').change();
-                $('#modal-customre-select').modal('show');
+                if (item.enable_p1 == 0) {
+                    wrap.find('input[name=type][value=1]').prop('disabled', true);
+                }
+                if (item.enable_p2 == 0) {
+                    wrap.find('input[name=type][value=2]').prop('disabled', true);
+                }
+                if (item.enable_p3 == 0) {
+                    wrap.find('input[name=type][value=3]').prop('disabled', true);
+                }
+
+                $('[show-group~=customre_select]').show();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR, textStatus, errorThrown);
@@ -596,17 +618,21 @@
         });
         return false;
     }
+    function productSelectUiClose() {
+        $('[show-group~=customre_select]').hide();
+    }
+    
 
     // Ajax - Set select info
     function setSelectInfo() {
-        let modal = $('#modal-customre-select');
-        let addr1_obj = modal.find('form[name=form_product_select] input[name=cus_addr1]');
-        let addr2_obj = modal.find('form[name=form_product_select] input[name=cus_addr2]');
-        let private_agree_obj = modal.find('form[name=form_product_select] input[name=private_agree]:checked');
-        let type_obj = modal.find('form[name=form_product_select] input[name=type]:checked');
-        let hope_1_obj = modal.find('form[name=form_product_select] input[name=hope_1]');
-        let hope_2_obj = modal.find('form[name=form_product_select] input[name=hope_2]');
-        let hope_3_obj = modal.find('form[name=form_product_select] input[name=hope_3]');
+        let wrap = $('#customre_select');
+        let addr1_obj = wrap.find('form[name=form_product_select] input[name=cus_addr1]');
+        let addr2_obj = wrap.find('form[name=form_product_select] input[name=cus_addr2]');
+        // let private_agree_obj = wrap.find('form[name=form_product_select] input[name=private_agree]:checked');
+        let type_obj = wrap.find('form[name=form_product_select] input[name=type]:checked');
+        let hope_1_obj = wrap.find('form[name=form_product_select] input[name=hope_1]');
+        let hope_2_obj = wrap.find('form[name=form_product_select] input[name=hope_2]');
+        let hope_3_obj = wrap.find('form[name=form_product_select] input[name=hope_3]');
 
         // 상품을 선택하지 않았을 경우
         if (!type_obj.val()) {
@@ -628,20 +654,18 @@
         }
 
         // 희망일자를 1건도 설정하지 않았을 경우
-        if (type_obj.val() == '1') {
-            if (hope_1_obj.val() == '' && hope_2_obj.val() == '' && hope_3_obj.val() == '') {
-                alert('최소 1개 이상 희망일자를 선택해주세요.');
-                hope_1_obj.focus();
-                return false;
-            }
+        if (hope_1_obj.val() == '' && hope_2_obj.val() == '' && hope_3_obj.val() == '') {
+            alert('최소 1개 이상 희망일자를 선택해주세요.');
+            hope_1_obj.focus();
+            return false;
         }
 
         // Request ajax
         $.ajax({
-            url: '/Api/Kcar/Kw/product',
+            url: '/api/front/prom/product',
             type: 'PUT',
             dataType: 'json',
-            data: modal.find('form[name=form_product_select]').serialize(),
+            data: wrap.find('form[name=form_product_select]').serialize(),
             timeout: 30000,
             beforeSubmit: function (arr, form, options) {},
             beforeSend: function (jqXHR, settings) {},
@@ -653,7 +677,7 @@
                 }
 
                 // Close modal
-                $('#modal-customre-select').modal('hide');
+                wrap.hide();
                 // Reload list
                 doSearch($('input[name=page_num]').val());
             },
