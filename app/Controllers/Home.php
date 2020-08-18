@@ -7,7 +7,7 @@ class Home extends BaseController
 		// return view('welcome_message');
 
 		// Go to specific UI
-		return redirect()->to('/Kcar/Kw');
+		return redirect()->to('/front/prom');
 	}
 
 	//--------------------------------------------------------------------

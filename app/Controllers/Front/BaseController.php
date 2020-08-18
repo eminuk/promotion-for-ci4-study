@@ -1,4 +1,4 @@
-<?php namespace App\Controllers\Kcar;
+<?php namespace App\Controllers\Front;
 
 /**
  * Class BaseController
@@ -57,7 +57,7 @@ class BaseController extends Controller
      * @var array
      */
     protected $view_data = [
-        'kw_layout' => []
+        'prom_layout' => []
     ];
 
     /**
@@ -113,7 +113,7 @@ class BaseController extends Controller
             $this->commonLib->jsAlertRedirect('Login is required.', '/');
         } else {
             $this->view_data = [
-                'kw_layout' => [
+                'prom_layout' => [
                 ]
             ];
             return;

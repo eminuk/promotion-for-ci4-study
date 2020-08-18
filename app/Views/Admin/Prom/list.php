@@ -145,9 +145,9 @@
 
             <div>
                 상품선택 <br />
-                <label><input type="radio" name="type" value="1" /> 옵션 1</label> &nbsp; 
-                <label><input type="radio" name="type" value="2" /> 옵션 2</label> &nbsp; 
-                <label><input type="radio" name="type" value="3" /> 옵션 3</label> &nbsp; 
+                <label><input type="radio" name="type" value="1" /> Option 1</label> &nbsp; 
+                <label><input type="radio" name="type" value="2" /> Option 2</label> &nbsp; 
+                <label><input type="radio" name="type" value="3" /> Option 3</label> &nbsp; 
             </div>
             <br />
 

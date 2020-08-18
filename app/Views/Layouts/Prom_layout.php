@@ -2,7 +2,7 @@
 <html lang="kr">
 <head>
     <meta charset="UTF-8">
-    <title>Kcar KW</title>
+    <title>Promotion</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" type="image/png" href="/favicon.ico"/>
 
@@ -20,7 +20,7 @@
 <!-- HEADER: MENU + HEROE SECTION -->
 <header>
     <h1>This is header</h1>
-    <a href="/Kcar/Kw">K Car</a>
+    <a href="/front/prom">HOME</a>
     <hr />
 </header>
 
@@ -35,11 +35,8 @@
     <hr />
     <h1>This is footer</h1>
     <div>
-        <p>㈜오토카지 대표이사 문창훈, 이앙</p>
-        <p>사업자등록번호 109-88-00998</p>
-        <p>서울특별시 강남구 언주로 430 (윤익빌딩10층)</p>
-        <p>대표전화 : 02-1800-0206</p>
-        <p>서비스 관련 문의 : support@autocarz.co.kr</p>
+        <p>Footer messages.</p>
+        <p>Footer messages.</p>
     </div>
 </footer>
 

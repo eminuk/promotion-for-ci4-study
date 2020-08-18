@@ -142,9 +142,9 @@ class PromModel extends Model
                 kc.cus_zip AS customer_zip, kc.cus_addr1 AS customer_addr1, kc.cus_addr2 AS customer_addr2, kc.send_sms, 
                 kp.id AS product_id, kp.type, kp.items, 
                 CASE kp.type 
-                    WHEN 1 THEN '옵션 1' 
-                    WHEN 2 THEN '옵션 2' 
-                    WHEN 3 THEN '옵션 3' 
+                    WHEN 1 THEN 'Option 1' 
+                    WHEN 2 THEN 'Option 2' 
+                    WHEN 3 THEN 'Option 3' 
                     ELSE '' 
                 END AS type_kr 
             FROM promotion AS k 
@@ -307,9 +307,9 @@ class PromModel extends Model
                 IFNULL(kc.hope_1, '') AS hope_1, IFNULL(kc.hope_2, '') AS hope_2, IFNULL(kc.hope_3, '') AS hope_3, 
                 IFNULL(kp.type, '') AS product_type, IFNULL(kp.items, '') AS product_items, 
                 CASE kp.type 
-                    WHEN 1 THEN '옵션 1' 
-                    WHEN 2 THEN '옵션 2' 
-                    WHEN 3 THEN '옵션 3' 
+                    WHEN 1 THEN 'Option 1' 
+                    WHEN 2 THEN 'Option 2' 
+                    WHEN 3 THEN 'Option 3' 
                     ELSE '-' 
                 END AS product_type_kr, 
                 IF(p1.id IS NULL, 0, 1) AS enable_p1, 
@@ -351,7 +351,7 @@ class PromModel extends Model
      * @param string $pm_id
      * @return array
      */
-    public function getKwProductInfo(int $pm_id): array
+    public function getPromProductInfo(int $pm_id): array
     {
         // Default return variable
         $rtn = array('result' => false, 'message' => '', 'list' => [], 'total_rows' => 0);
@@ -564,9 +564,9 @@ class PromModel extends Model
                 kc.cus_zip AS customer_zip, kc.cus_addr1 AS customer_addr1, kc.cus_addr2 AS customer_addr2, kc.hope_1, kc.hope_2, kc.hope_3, 
                 kp.type, kp.items, 
                 CASE kp.type 
-                    WHEN 1 THEN '옵션 1' 
-                    WHEN 2 THEN '옵션 2' 
-                    WHEN 3 THEN '옵션 3' 
+                    WHEN 1 THEN 'Option 1' 
+                    WHEN 2 THEN 'Option 2' 
+                    WHEN 3 THEN 'Option 3' 
                     ELSE '-' 
                 END AS type_kr 
             FROM promotion AS k 
