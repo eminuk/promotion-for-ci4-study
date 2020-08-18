@@ -114,7 +114,6 @@ GRANT ALL PRIVILEGES ON promotion_prj.* TO 'promotion_prj'@'%' IDENTIFIED BY 'pr
             hope_1 DATETIME NULL COMMENT '수령 희망일 1',
             hope_2 DATETIME NULL COMMENT '수령 희망일 2',
             hope_3 DATETIME NULL COMMENT '수령 희망일 3',
-            send_sms TINYINT NOT NULL DEFAULT 0 COMMENT 'SMS 발송여부 (0:미발송 / 1:발송완료 / 2:발송실패)',
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
 
@@ -122,7 +121,6 @@ GRANT ALL PRIVILEGES ON promotion_prj.* TO 'promotion_prj'@'%' IDENTIFIED BY 'pr
             UNIQUE KEY (pm_id),
             INDEX (bnft_code),
             INDEX (product_id), 
-            INDEX (send_sms)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='프로모션 고객 데이터';
         ```
     1. 상품 데이터
@@ -145,36 +143,36 @@ GRANT ALL PRIVILEGES ON promotion_prj.* TO 'promotion_prj'@'%' IDENTIFIED BY 'pr
 
         -- Insert default products
         INSERT INTO `promotion_product` (`pm_code`, `bnft_price`, `type`, `items`) VALUES
-        ('6', '20000', '1', '실외'),
-        ('6', '20000', '2', '카샴푸\n광택용극세타월'),
-        ('6', '20000', '3', '랏츠 트윈스마트 충전기\n햇빛 가리게(3p)'),
-        ('12', '30000', '1', '실외\n실내'),
-        ('12', '30000', '2', '카샴푸\n유리광택세정제\n광택용극세타월'),
-        ('12', '30000', '3', '랏츠 트윈스마트 충전기\n엑스트라 3in1 USB 고속 충전 cable\n시그니처 스윙 주차 알림판'),
-        ('6', '25000', '1', '실외'),
-        ('6', '25000', '2', '카샴푸\n유리광택세정제'),
-        ('6', '25000', '3', '랏츠 트윈스마트 충전기\n아이팝 블루라인 마그네틱 케이블 5핀.8핀C타입\n햇빛 가리게 (3p)'),
-        ('12', '35000', '1', '실외\n실내'),
-        ('12', '35000', '2', 'MBL 모먼트 아쿠아 스프레이 2개'),
-        ('12', '35000', '3', '랏츠 트윈스마트 충전기\n엑스트라 3in1 USB 고속 충전 cable\n햇빛 가리게 (3p)\n시그니처 스윙 주차 알림판\n'),
-        ('6', '35000', '1', '실외'),
-        ('6', '35000', '2', '카샴푸\n유리광택세정제\n휠크리너'),
-        ('6', '35000', '3', '랏츠 트윈스마트 충전기\n아이팝 블루라인 마그네틱 케이블 5핀.8핀C타입\n햇빛 가리게 (3p)\n풀메탈 QC3.0 충전기'),
-        ('12', '45000', '1', '실외\n실내'),
-        ('12', '45000', '2', '카샴푸\n유리광택세정제\n휠크리너\n광택용극세타월\n소낙스 멀티스펀지'),
-        ('12', '45000', '3', '랏츠 트윈스마트 충전기\n엑스트라 3in1 USB 고속 충전 cable\n햇빛 가리게 (3p)\n시그니처 스윙 주차 알림판\n멀티 트렁크 정리함'),
-        ('6', '45000', '1', '실외'),
-        ('6', '45000', '2', '카샴푸\n유리광택세정제\n휠크리너\n광택용극세타월\n소낙스 멀티스펀지'),
-        ('12', '60000', '1', '실외\n실내\n스팀살균'),
-        ('12', '60000', '2', '카샴푸\n유리광택세정제\n휠크리너\n고속코팅왁스\n스티커타르제거'),
-        ('6', '50000', '1', '실외\n실내\n스팀살균'),
-        ('6', '50000', '2', '카샴푸\n유리광택세정제\n휠크리너\n고속코팅왁스\n광택용극세타월'),
-        ('12', '75000', '1', '실외\n실내\n스팀살균\n엔진룸'),
-        ('12', '75000', '2', '카샴푸\n유리광택세정제\n휠크리너\n고속코팅왁스\n스티커타르제거\n컴파운드\n광택용극세타월\n유리극세타월\n드라잉타월\n소낙스왁싱스펀지'),
-        ('6', '70000', '1', '실외\n실내\n스팀살균'),
-        ('6', '70000', '2', '카샴푸\n유리광택세정제\n휠크리너\n고속코팅왁스\n스티커타르제거\n컴파운드'),
-        ('12', '95000', '1', '실외\n실내\n스팀살균\n엔진룸'),
-        ('12', '95000', '2', '카샴푸\n유리광택세정제\n휠크리너\n고속코팅왁스\n스티커타르제거\n컴파운드\n타이어광택제\n유리극세타월\n드라잉타월\n소낙스왁싱스펀지\n트렁크정리함')
+        ('P1', '20000', '1', 'Benefit option 1 (type 1)'),
+        ('P1', '20000', '2', 'Benefit option 2 (type 1)'),
+        ('P1', '20000', '3', 'Benefit option 3 (type 1)'),
+        ('P2', '30000', '1', 'Benefit option 1 (type 2)'),
+        ('P2', '30000', '2', 'Benefit option 2 (type 3)'),
+        ('P2', '30000', '3', 'Benefit option 3 (type 2)'),
+        ('P1', '25000', '1', 'Benefit option 1 (type 1)'),
+        ('P1', '25000', '2', 'Benefit option 2 (type 1)'),
+        ('P1', '25000', '3', 'Benefit option 3 (type 2)'),
+        ('P2', '35000', '1', 'Benefit option 1 (type 2)'),
+        ('P2', '35000', '2', 'Benefit option 2 (type 2)'),
+        ('P2', '35000', '3', 'Benefit option 3 (type 3)'),
+        ('P1', '35000', '1', 'Benefit option 1 (type 1)'),
+        ('P1', '35000', '2', 'Benefit option 2 (type 2)'),
+        ('P1', '35000', '3', 'Benefit option 3 (type 4)'),
+        ('P2', '45000', '1', 'Benefit option 1 (type 2)'),
+        ('P2', '45000', '2', 'Benefit option 2 (type 3)'),
+        ('P2', '45000', '3', 'Benefit option 3 (type 5)'),
+        ('P1', '45000', '1', 'Benefit option 1 (type 1)'),
+        ('P1', '45000', '2', 'Benefit option 2 (type 3)'),
+        ('P2', '60000', '1', 'Benefit option 1 (type 3)'),
+        ('P2', '60000', '2', 'Benefit option 2 (type 3)'),
+        ('P1', '50000', '1', 'Benefit option 1 (type 3)'),
+        ('P1', '50000', '2', 'Benefit option 2 (type 3)'),
+        ('P2', '75000', '1', 'Benefit option 1 (type 4)'),
+        ('P2', '75000', '2', 'Benefit option 2 (type 4)'),
+        ('P1', '70000', '1', 'Benefit option 1 (type 3)'),
+        ('P1', '70000', '2', 'Benefit option 2 (type 3)'),
+        ('P2', '95000', '1', 'Benefit option 1 (type 4)'),
+        ('P2', '95000', '2', 'Benefit option 2 (type 5)')
         ;
         ```
 

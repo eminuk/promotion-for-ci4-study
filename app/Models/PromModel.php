@@ -139,7 +139,7 @@ class PromModel extends Model
                 k.cus_name, k.cus_mobile, 
                 k.bnft_price, 
                 kc.bnft_code, IF(kc.product_id IS NULL, '미신청', '신청완료') AS is_select_kr, kc.select_at, 
-                kc.cus_zip AS customer_zip, kc.cus_addr1 AS customer_addr1, kc.cus_addr2 AS customer_addr2, kc.send_sms, 
+                kc.cus_zip AS customer_zip, kc.cus_addr1 AS customer_addr1, kc.cus_addr2 AS customer_addr2,  
                 kp.id AS product_id, kp.type, kp.items, 
                 CASE kp.type 
                     WHEN 1 THEN 'Option 1' 

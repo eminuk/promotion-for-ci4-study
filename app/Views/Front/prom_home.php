@@ -12,7 +12,7 @@
 <!-- content_area -->
 <?= $this->section('content_area') ?>
 <h4>Promotion</h4>
-<h5>Please select a promotion benefit.</h5>
+<h5>Sign in to benefit.</h5>
 
 <form name="form_customer" method="post" action="/front/prom/customer">
     <input type="text" name="cus_name" maxlength="6" placeholder="Enter your name." value="" />
