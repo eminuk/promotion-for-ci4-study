@@ -10,6 +10,7 @@
     - libcurl
 - box/spout 요구사항 만족 필요
     - php-zip
+- PhpSpreadsheet 요구사항 만족 필요
 
 ## DB 구성
 
