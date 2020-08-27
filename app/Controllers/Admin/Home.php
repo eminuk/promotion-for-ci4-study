@@ -26,6 +26,18 @@ class Home extends \App\Controllers\Admin\BaseController
         // $this->session->stop();
         // $this->session->destroy();
 
-        return view('admin/login_page');
+        // Read parameters
+        $params = [
+            'remember' => $this->commonLib->readCookie('admin_remember'),
+            'password' => $this->commonLib->readPostGet('password'),
+            'remember' => $this->commonLib->readCookie('admin_remember'),
+        ];
+
+        // Set view date
+        $this->view_data['view'] = [
+            'remember' => $params['remember']
+        ];
+
+        return view('Admin/login_page', $this->view_data);
     }
 }
