@@ -28,7 +28,7 @@ class Home extends \App\Controllers\Admin\BaseController
 
         // Read parameters
         $params = [
-            'remember' => $this->commonLib->readCookie('admin_remember'),
+            'email' => $this->commonLib->readPostGet('email'),
             'password' => $this->commonLib->readPostGet('password'),
             'remember' => $this->commonLib->readCookie('admin_remember'),
         ];
